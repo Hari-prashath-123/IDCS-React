@@ -2,6 +2,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './utils/ProtectedRoute';
+import Layout from './components/common/Layout.jsx';
 // ...import pages
 import StudentDashboard from './pages/dashboards/StudentDashboard.jsx';
 import StaffDashboard from './pages/dashboards/StaffDashboard.jsx';

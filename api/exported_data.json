@@ -1,0 +1,1413 @@
+{
+  "students": [
+    {
+      "username": "1011",
+      "email": "",
+      "first_name": "",
+      "last_name": "",
+      "reg_no": null,
+      "department": null,
+      "section": 2
+    },
+    {
+      "username": "001",
+      "email": "",
+      "first_name": "",
+      "last_name": "",
+      "reg_no": null,
+      "department": null,
+      "section": 2
+    },
+    {
+      "username": "2303811724321125",
+      "email": "yogappriyan.ad23@krct.ac.in",
+      "first_name": "YOGAPPRIYAN",
+      "last_name": "S",
+      "reg_no": "ADB23125",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322124",
+      "email": "viswadharshini.ad23@krct.ac.in",
+      "first_name": "VISWA DHARSHINI",
+      "last_name": "T K",
+      "reg_no": "ADB23124",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321123",
+      "email": "vinoagustin.ad23@krct.ac.in",
+      "first_name": "VINO AGUSTIN",
+      "last_name": "V",
+      "reg_no": "ADB23123",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322122",
+      "email": "vimalshree.ad23@krct.ac.in",
+      "first_name": "VIMALSHREE",
+      "last_name": "M",
+      "reg_no": "ADB23122",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321121",
+      "email": "vigneswaran.ad23@krct.ac.in",
+      "first_name": "VIGNESWARAN",
+      "last_name": "K",
+      "reg_no": "ADB23121",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321120",
+      "email": "venkatachalam.ad23@krct.ac.in",
+      "first_name": "VENKATACHALAM",
+      "last_name": "N",
+      "reg_no": "ADB23120",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321119",
+      "email": "vaithyanadhan.ad23@krct.ac.in",
+      "first_name": "VAITHYANADHAN S",
+      "last_name": "G",
+      "reg_no": "ADB23119",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322118",
+      "email": "vaishali.ad23@krct.ac.in",
+      "first_name": "VAISHALI",
+      "last_name": "A",
+      "reg_no": "ADB23118",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321117",
+      "email": "thilipkumar.ad23@krct.ac.in",
+      "first_name": "THILIP KUMAR",
+      "last_name": "S",
+      "reg_no": "ADB23117",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322116",
+      "email": "tamildeepaa.ad23@krct.ac.in",
+      "first_name": "TAMILDEEPAA",
+      "last_name": "A",
+      "reg_no": "ADB23116",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321115",
+      "email": "surya.ad23@krct.ac.in",
+      "first_name": "SURYA",
+      "last_name": "S",
+      "reg_no": "ADB23115",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322114",
+      "email": "sujithara.ad23@krct.ac.in",
+      "first_name": "SUJITHA",
+      "last_name": "R S",
+      "reg_no": "ADB23114",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322113",
+      "email": "sujithag.ad23@krct.ac.in",
+      "first_name": "SUJITHA",
+      "last_name": "G",
+      "reg_no": "ADB23113",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322112",
+      "email": "sugapriya.ad23@krct.ac.in",
+      "first_name": "SUGAPRIYA",
+      "last_name": "A",
+      "reg_no": "ADB23112",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321111",
+      "email": "sudhakaran.ad23@krct.ac.in",
+      "first_name": "SUDHAKARAN",
+      "last_name": "M",
+      "reg_no": "ADB23111",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322110",
+      "email": "subiksa.ad23@krct.ac.in",
+      "first_name": "SUBIKSA",
+      "last_name": "G R",
+      "reg_no": "ADB23110",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322109",
+      "email": "subathra.ad23@krct.ac.in",
+      "first_name": "SUBATHRA",
+      "last_name": "S",
+      "reg_no": "ADB23109",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321108",
+      "email": "srivathsan.ad23@krct.ac.in",
+      "first_name": "SRIVATHSAN",
+      "last_name": "S",
+      "reg_no": "ADB23108",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322107",
+      "email": "sriharithavarsiny.ad23@krct.ac.in",
+      "first_name": "SRI HARITHA VARSINY",
+      "last_name": "R",
+      "reg_no": "ADB23107",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322106",
+      "email": "sofiya.ad23@krct.ac.in",
+      "first_name": "SOFIYA",
+      "last_name": "C",
+      "reg_no": "ADB23106",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321105",
+      "email": "sibichakkaravarthi.ad23@krct.ac.in",
+      "first_name": "SIBI CHAKKARAVARTHI",
+      "last_name": "S",
+      "reg_no": "ADB23105",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322104",
+      "email": "shekkinahhephzibah.ad23@krct.ac.in",
+      "first_name": "SHEKKINAH HEPHZIBAH",
+      "last_name": "M",
+      "reg_no": "ADB23104",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321103",
+      "email": "sheikhmohammed.ad23@krct.ac.in",
+      "first_name": "SHEIKH MOHAMMED",
+      "last_name": "M",
+      "reg_no": "ADB23103",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322102",
+      "email": "shamithasri.ad23@krct.ac.in",
+      "first_name": "SHAMITHA SRI",
+      "last_name": "S",
+      "reg_no": "ADB23102",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321101",
+      "email": "shahulhameed.ad23@krct.ac.in",
+      "first_name": "SHAHUL HAMEED",
+      "last_name": "M",
+      "reg_no": "ADB23101",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321100",
+      "email": "sevenhillsvasa.ad23@krct.ac.in",
+      "first_name": "SEVENHILLSVASA",
+      "last_name": "S",
+      "reg_no": "ADB23100",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321099",
+      "email": "sathiyaseelan.ad23@krct.ac.in",
+      "first_name": "SATHIYASEELAN",
+      "last_name": "A",
+      "reg_no": "ADB23099",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321098",
+      "email": "sathiyajithaashim.ad23@krct.ac.in",
+      "first_name": "SATHIYAJITH AASHIM",
+      "last_name": "G",
+      "reg_no": "ADB23098",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321097",
+      "email": "santhosh.ad23@krct.ac.in",
+      "first_name": "SANTHOSH",
+      "last_name": "S",
+      "reg_no": "ADB23097",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322096",
+      "email": "santhiya.ad23@krct.ac.in",
+      "first_name": "SANTHIYA",
+      "last_name": "S",
+      "reg_no": "ADB23096",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321095",
+      "email": "sakthivishal.ad23@krct.ac.in",
+      "first_name": "SAKTHIVISHAL",
+      "last_name": "C",
+      "reg_no": "ADB23095",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321094",
+      "email": "sainithickroshaan.ad23@krct.ac.in",
+      "first_name": "SAI NITHICK ROSHAAN",
+      "last_name": "S",
+      "reg_no": "ADB23094",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322093",
+      "email": "sahana.ad23@krct.ac.in",
+      "first_name": "SAHANA",
+      "last_name": "P",
+      "reg_no": "ADB23093",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322092",
+      "email": "rukshita.ad23@krct.ac.in",
+      "first_name": "RUKSHITA",
+      "last_name": "G",
+      "reg_no": "ADB23092",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321091",
+      "email": "roshith.ad23@krct.ac.in",
+      "first_name": "ROSHITH",
+      "last_name": "S",
+      "reg_no": "ADB23091",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321090",
+      "email": "rishiyanth.ad23@krct.ac.in",
+      "first_name": "RISHIYANTH",
+      "last_name": "S",
+      "reg_no": "ADB23090",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322089",
+      "email": "rexcia.ad23@krct.ac.in",
+      "first_name": "REXCIA",
+      "last_name": "A",
+      "reg_no": "ADB23089",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322088",
+      "email": "renusri.ad23@krct.ac.in",
+      "first_name": "RENUSRI",
+      "last_name": "P",
+      "reg_no": "ADB23088",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321087",
+      "email": "ravin.ad23@krct.ac.in",
+      "first_name": "RAVIN",
+      "last_name": "S",
+      "reg_no": "ADB23087",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322086",
+      "email": "raghavi.ad23@krct.ac.in",
+      "first_name": "RAGHAVI",
+      "last_name": "S A",
+      "reg_no": "ADB23086",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322085",
+      "email": "priyadharshini.ad23@krct.ac.in",
+      "first_name": "PRIYADHARSHINI",
+      "last_name": "J",
+      "reg_no": "ADB23085",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322084",
+      "email": "pravina.ad23@krct.ac.in",
+      "first_name": "PRAVINA",
+      "last_name": "M",
+      "reg_no": "ADB23084",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322083",
+      "email": "praveena.ad23@krct.ac.in",
+      "first_name": "PRAVEENA",
+      "last_name": "V",
+      "reg_no": "ADB23023",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321082",
+      "email": "prasanna.ad23@krct.ac.in",
+      "first_name": "PRASANNA",
+      "last_name": "N",
+      "reg_no": "ADB23082",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321081",
+      "email": "pradeep.ad23@krct.ac.in",
+      "first_name": "PRADEEP",
+      "last_name": "M",
+      "reg_no": "ADB23081",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322080",
+      "email": "padmapriya.ad23@krct.ac.in",
+      "first_name": "PADMA PRIYA",
+      "last_name": "S",
+      "reg_no": "ADB23080",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321079",
+      "email": "omprakash.ad23@krct.ac.in",
+      "first_name": "OM PRAKASH",
+      "last_name": "M",
+      "reg_no": "ADB23079",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322078",
+      "email": "nithyapriya.ad23@krct.ac.in",
+      "first_name": "NITHYAPRIYA",
+      "last_name": "S",
+      "reg_no": "ADB23078",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321077",
+      "email": "nethaji.ad23@krct.ac.in",
+      "first_name": "NETHAJI",
+      "last_name": "J",
+      "reg_no": "ADB23077",
+      "department": null,
+      "section": 2
+    },
+    {
+      "username": "2303811724322076",
+      "email": "nekashri.ad23@krct.ac.in",
+      "first_name": "NEKASHRI",
+      "last_name": "S",
+      "reg_no": "ADB23076",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322075",
+      "email": "nandhini.ad23@krct.ac.in",
+      "first_name": "NANDHINI",
+      "last_name": "K",
+      "reg_no": "ADB23075",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322074",
+      "email": "nametha.ad23@krct.ac.in",
+      "first_name": "NAMETHA",
+      "last_name": "K",
+      "reg_no": "ADB23074",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724322073",
+      "email": "muthumeena.ad23@krct.ac.in",
+      "first_name": "MUTHU MEENA",
+      "last_name": "K",
+      "reg_no": "ADB23073",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321072",
+      "email": "mukilan.ad23@krct.ac.in",
+      "first_name": "MUKILAN",
+      "last_name": "K",
+      "reg_no": "ADB23072",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321071",
+      "email": "mukesh.ad23@krct.ac.in",
+      "first_name": "MUKESH",
+      "last_name": "M",
+      "reg_no": "ADB23071",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321070",
+      "email": "mohanavel.ad23@krct.ac.in",
+      "first_name": "MOHANAVEL",
+      "last_name": "K",
+      "reg_no": "ADB23070",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321069",
+      "email": "mohammedraasith.ad23@krct.ac.in",
+      "first_name": "MOHAMMED RAASITH",
+      "last_name": "H",
+      "reg_no": "ADB23069",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321068",
+      "email": "mohamedibrahim.ad23@krct.ac.in",
+      "first_name": "MOHAMED IBRAHIM",
+      "last_name": "F",
+      "reg_no": "ADB23068",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321067",
+      "email": "mohamedfirdous.ad23@krct.ac.in",
+      "first_name": "MOHAMED FIRDOUS",
+      "last_name": "S",
+      "reg_no": "ADB23067",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321066",
+      "email": "mohamedadhilameen.ad23@krct.ac.in",
+      "first_name": "MOHAMED ADHIL AMEEN",
+      "last_name": "R",
+      "reg_no": "ADB23066",
+      "department": null,
+      "section": 3
+    },
+    {
+      "username": "2303811724321065",
+      "email": "mithravasan.ad23@krct.ac.in",
+      "first_name": "MITHRAVASAN",
+      "last_name": "V B H",
+      "reg_no": "ADB23065",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 3
+    },
+    {
+      "username": "2303811724322064",
+      "email": "manasashree.ad23@krct.ac.in",
+      "first_name": "MANASA SHREE",
+      "last_name": "R M",
+      "reg_no": "ADB23064",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 3
+    },
+    {
+      "username": "2303811724321063",
+      "email": "maheswaran.ad23@krct.ac.in",
+      "first_name": "MAHESWARAN",
+      "last_name": "A",
+      "reg_no": "ADA23063",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322062",
+      "email": "magisha.ad23@krct.ac.in",
+      "first_name": "MAGISHA",
+      "last_name": "M",
+      "reg_no": "ADA23062",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321061",
+      "email": "logeshwarana.ad23@krct.ac.in",
+      "first_name": "LOGESHWARAN",
+      "last_name": "A",
+      "reg_no": "ADA23061",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322060",
+      "email": "lavanya.ad23@krct.ac.in",
+      "first_name": "LAVANYA",
+      "last_name": "A",
+      "reg_no": "ADA23060",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321059",
+      "email": "lalithkishore.ad23@krct.ac.in",
+      "first_name": "LALITH KISHORE",
+      "last_name": "N S",
+      "reg_no": "ADA23059",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321058",
+      "email": "lalitchandran.ad23@krct.ac.in",
+      "first_name": "LALIT CHANDRAN",
+      "last_name": "S",
+      "reg_no": "ADA23058",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321057",
+      "email": "kumaresan.ad23@krct.ac.in",
+      "first_name": "KUMARESAN",
+      "last_name": "M S",
+      "reg_no": "ADA23057",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321056",
+      "email": "std56@example.com",
+      "first_name": "Std56",
+      "last_name": "",
+      "reg_no": "ADA23056",
+      "department": null,
+      "section": 2
+    },
+    {
+      "username": "2303811724321055",
+      "email": "kesavan.ad23@krct.ac.in",
+      "first_name": "KESAVAN",
+      "last_name": "J",
+      "reg_no": "ADA23055",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322054",
+      "email": "std54@example.com",
+      "first_name": "KEERTHANA",
+      "last_name": "M",
+      "reg_no": "ADA23054",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321053",
+      "email": "karthicksubramanian.ad23@krct.ac.in",
+      "first_name": "KARTHICK SUBRAMANIAN",
+      "last_name": "K",
+      "reg_no": "ADA23053",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322052",
+      "email": "karkuzhali.ad23@krct.ac.in",
+      "first_name": "KARKUZHALI",
+      "last_name": "S",
+      "reg_no": "ADA23052",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321051",
+      "email": "kapil.ad23@krct.ac.in",
+      "first_name": "KAPIL",
+      "last_name": "K",
+      "reg_no": "ADA23051",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321050",
+      "email": "kanishkar.ad23@krct.ac.in",
+      "first_name": "KANISHKAR",
+      "last_name": "T",
+      "reg_no": "ADA23050",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321049",
+      "email": "kamalesh.ad23@krct.ac.in",
+      "first_name": "KAMALESH",
+      "last_name": "S",
+      "reg_no": "ADA23049",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321048",
+      "email": "julianfidalcastro.ad23@krct.ac.in",
+      "first_name": "JULIAN FIDAL CASTRO",
+      "last_name": "S",
+      "reg_no": "ADA23048",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322047",
+      "email": "joynursingh.ad23@krct.ac.in",
+      "first_name": "JOYNURSINGH",
+      "last_name": "J",
+      "reg_no": "ADA23047",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321046",
+      "email": "jeffrinemmanuel.ad23@krct.ac.in",
+      "first_name": "JEFFREIN EMMANUEL",
+      "last_name": "J E",
+      "reg_no": "ADA23046",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322045",
+      "email": "jeevitha.ad23@krct.ac.in",
+      "first_name": "JEEVITHA",
+      "last_name": "S",
+      "reg_no": "ADA23045",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321044",
+      "email": "jayachandram.ad23@krct.ac.in",
+      "first_name": "JAYACHANDRAN",
+      "last_name": "M",
+      "reg_no": "ADA23044",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321043",
+      "email": "jayabalaji.ad23@krct.ac.in",
+      "first_name": "JAYABALAJI",
+      "last_name": "S",
+      "reg_no": "ADA23043",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322042",
+      "email": "jananiv.ad23@krct.ac.in",
+      "first_name": "JANANI",
+      "last_name": "V",
+      "reg_no": "ADA23042",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322041",
+      "email": "jananip.ad23@krct.ac.in",
+      "first_name": "JANANI",
+      "last_name": "P",
+      "reg_no": "ADA23041",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322040",
+      "email": "janakirani.ad23@krct.ac.in",
+      "first_name": "JANAKIRANI",
+      "last_name": "V",
+      "reg_no": "ADA23040",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322039",
+      "email": "janaka.ad23@krct.ac.in",
+      "first_name": "JANAKA",
+      "last_name": "K",
+      "reg_no": "ADA23039",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322038",
+      "email": "irinminerwa.ad23@krct.ac.in",
+      "first_name": "IRIN MINERWA",
+      "last_name": "S",
+      "reg_no": "ADA23038",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321037",
+      "email": "irfannowfith.ad23@krct.ac.in",
+      "first_name": "IRFAN NOWFITH",
+      "last_name": "S H",
+      "reg_no": "ADA23037",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322036",
+      "email": "induja.ad23@krct.ac.in",
+      "first_name": "INDUJA",
+      "last_name": "A",
+      "reg_no": "ADA23036",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321035",
+      "email": "hemanthkumar.ad23@krct.ac.in",
+      "first_name": "HEMANTH KUMAR",
+      "last_name": "I",
+      "reg_no": "ADA23035",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322034",
+      "email": "hariswasthra.ad23@krct.ac.in",
+      "first_name": "HARISWASTHRA",
+      "last_name": "S",
+      "reg_no": "ADA23034",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321033",
+      "email": "hariprashath.ad23@krct.ac.in",
+      "first_name": "HARI PRASHATH",
+      "last_name": "B",
+      "reg_no": "ADA23033",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322032",
+      "email": "giritha.ad23@krct.ac.in",
+      "first_name": "GIRITHA",
+      "last_name": "P",
+      "reg_no": "ADA23032",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321031",
+      "email": "gilbertfrank.ad23@krct.ac.in",
+      "first_name": "GILBERT FRANK",
+      "last_name": "V",
+      "reg_no": "ADA23031",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322030",
+      "email": "gayathri.ad23@krct.ac.in",
+      "first_name": "GAYATHRI",
+      "last_name": "R",
+      "reg_no": "ADA23030",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321029",
+      "email": "elavarasu.ad23@krct.ac.in",
+      "first_name": "ELAVARASU",
+      "last_name": "P",
+      "reg_no": "ADA23029",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322028",
+      "email": "dhivyarubika.ad23@krct.ac.in",
+      "first_name": "DHIVYARUBIKA",
+      "last_name": "M",
+      "reg_no": "ADA23028",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321027",
+      "email": "dhinesh.ad23@krct.ac.in",
+      "first_name": "DHINESH",
+      "last_name": "M",
+      "reg_no": "ADA23027",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322026",
+      "email": "dharshini.ad23@krct.ac.in",
+      "first_name": "DHARSHINI",
+      "last_name": "P",
+      "reg_no": "ADA23026",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322025",
+      "email": "dharanika.ad23@krct.ac.in",
+      "first_name": "DHARANIKA",
+      "last_name": "P",
+      "reg_no": "ADA23025",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322024",
+      "email": "devipriya.ad23@krct.ac.in",
+      "first_name": "DEVI PRIYA",
+      "last_name": "S",
+      "reg_no": "ADA23024",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322023",
+      "email": "devadharshinik.ad23@krct.ac.in",
+      "first_name": "DEVADHARSHINI",
+      "last_name": "K",
+      "reg_no": "ADA23023",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322022",
+      "email": "devadharshinij.ad23@krct.ac.in",
+      "first_name": "DEVADHARSHINI",
+      "last_name": "J",
+      "reg_no": "ADA23022",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321021",
+      "email": "darrunsitash.ad23@krct.ac.in",
+      "first_name": "DARRUNSITASH",
+      "last_name": "M",
+      "reg_no": "ADA23021",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321020",
+      "email": "bhavansabari.ad23@krct.ac.in",
+      "first_name": "BHAVAN SABARI",
+      "last_name": "S",
+      "reg_no": "ADA23020",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321019",
+      "email": "balaruban.ad23@krct.ac.in",
+      "first_name": "BALARUBAN",
+      "last_name": "R",
+      "reg_no": "ADA23019",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321018",
+      "email": "balakumaran.ad23@krct.ac.in",
+      "first_name": "BALAKUMARAN",
+      "last_name": "B",
+      "reg_no": "ADA23018",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321017",
+      "email": "aswinkumar.ad23@krct.ac.in",
+      "first_name": "ASWIN KUMAR",
+      "last_name": "G K",
+      "reg_no": "ADA23017",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321016",
+      "email": "asswinbalaji.ad23@krct.ac.in",
+      "first_name": "ASSWIN BALAJI",
+      "last_name": "B",
+      "reg_no": "ADA23016",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322015",
+      "email": "aruna.ad23@krct.ac.in",
+      "first_name": "ARUNA",
+      "last_name": "K J",
+      "reg_no": "ADA23015",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321014",
+      "email": "aravindhraj.ad23@krct.ac.in",
+      "first_name": "ARAVINDHRAJ",
+      "last_name": "R V",
+      "reg_no": "ADA23014",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321013",
+      "email": "anandhakrishnan.ad23@krct.ac.in",
+      "first_name": "ANANDHA  KRISHNAN",
+      "last_name": "M",
+      "reg_no": "ADA23013",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322012",
+      "email": "akshayamathi.ad23@krct.ac.in",
+      "first_name": "AKSHAYA MATHI",
+      "last_name": "D",
+      "reg_no": "ADA23012",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322011",
+      "email": "akshayapriya.ad23@krct.ac.in",
+      "first_name": "AKSHAYA PRIYA",
+      "last_name": "T",
+      "reg_no": "ADA23011",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322010",
+      "email": "akshaya.ad23@krct.ac.in",
+      "first_name": "AKSHAYA",
+      "last_name": "A P",
+      "reg_no": "ADA23010",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321009",
+      "email": "abisheks.ad23@krct.ac.in",
+      "first_name": "ABISHEK",
+      "last_name": "S",
+      "reg_no": "ADA23009",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321008",
+      "email": "abishekm.ad23@krct.ac.in",
+      "first_name": "ABISHEK",
+      "last_name": "M",
+      "reg_no": "ADA23008",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321007",
+      "email": "abinesh.ad23@krct.ac.in",
+      "first_name": "ABINESH",
+      "last_name": "R",
+      "reg_no": "ADA23007",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322006",
+      "email": "abinaya.ad23@krct.ac.in",
+      "first_name": "ABINAYA",
+      "last_name": "S",
+      "reg_no": "ADA23006",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321005",
+      "email": "abivarsan.ad23@krct.ac.in",
+      "first_name": "ABI VARSAN",
+      "last_name": "P",
+      "reg_no": "ADA23005",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321004",
+      "email": "abdulraheem.ad23@krct.ac.in",
+      "first_name": "ABDUL RAHEEM",
+      "last_name": "F",
+      "reg_no": "ADA23004",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321003",
+      "email": "aathilahamed.ad23@krct.ac.in",
+      "first_name": "AATHIL AHAMEAD",
+      "last_name": "H",
+      "reg_no": "ADA23003",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724321002",
+      "email": "aarya.ad23@krct.ac.in",
+      "first_name": "AARYA",
+      "last_name": "A",
+      "reg_no": "ADA23002",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "2303811724322001",
+      "email": "aaffrin.ad23@krct.ac.in",
+      "first_name": "AAFFRIN",
+      "last_name": "A R",
+      "reg_no": "ADA23001",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "section": 2
+    },
+    {
+      "username": "321619",
+      "email": "swethabharathir.ai@krct.ac.in",
+      "first_name": "Swethabharathi",
+      "last_name": "R",
+      "reg_no": null,
+      "department": null,
+      "section": 2
+    },
+    {
+      "username": "321618",
+      "email": "sumathia.ai@krct.ac.in",
+      "first_name": "Sumathi",
+      "last_name": "A",
+      "reg_no": null,
+      "department": null,
+      "section": 2
+    },
+    {
+      "username": "321617",
+      "email": "srisanthoshinie.ai@krct.ac.in",
+      "first_name": "Srisanthoshini",
+      "last_name": "E",
+      "reg_no": null,
+      "department": null,
+      "section": 2
+    },
+    {
+      "username": "321616",
+      "email": "shyamsundart.ai@krct.ac.in",
+      "first_name": "Shyamsundar",
+      "last_name": "T",
+      "reg_no": null,
+      "department": null,
+      "section": 2
+    },
+    {
+      "username": "321615",
+      "email": "roshanjoshuar.ai@krct.ac.in",
+      "first_name": "Roshanjoshua",
+      "last_name": "R",
+      "reg_no": null,
+      "department": null,
+      "section": 2
+    },
+    {
+      "username": "811721001058",
+      "email": "",
+      "first_name": "",
+      "last_name": "",
+      "reg_no": null,
+      "department": null,
+      "section": 5
+    },
+    {
+      "username": "811721001051",
+      "email": "",
+      "first_name": "Sriram",
+      "last_name": "",
+      "reg_no": "AM21051",
+      "department": null,
+      "section": 0
+    },
+    {
+      "username": "811721001059",
+      "email": "",
+      "first_name": "Vinotha",
+      "last_name": "",
+      "reg_no": "21AI002",
+      "department": null,
+      "section": 3
+    }
+  ],
+  "staff": [
+    {
+      "username": "1011",
+      "email": "",
+      "first_name": "",
+      "last_name": "",
+      "department": "Physical Education",
+      "position": 5
+    },
+    {
+      "username": "100",
+      "email": "",
+      "first_name": "Dhinesh PT sir",
+      "last_name": "",
+      "department": null,
+      "position": 0
+    },
+    {
+      "username": "001",
+      "email": "",
+      "first_name": "",
+      "last_name": "",
+      "department": null,
+      "position": 0
+    },
+    {
+      "username": "321619",
+      "email": "swethabharathir.ai@krct.ac.in",
+      "first_name": "Swethabharathi",
+      "last_name": "R",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 3
+    },
+    {
+      "username": "321618",
+      "email": "sumathia.ai@krct.ac.in",
+      "first_name": "Sumathi",
+      "last_name": "A",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 3
+    },
+    {
+      "username": "321617",
+      "email": "srisanthoshinie.ai@krct.ac.in",
+      "first_name": "Srisanthoshini",
+      "last_name": "E",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 3
+    },
+    {
+      "username": "321601",
+      "email": "aravindprasadpb.ai@krct.ac.in",
+      "first_name": "Aravind prasad",
+      "last_name": "P B",
+      "department": "B.Tech (CSE) Artificial Intelligence & Machine Learning",
+      "position": 3
+    },
+    {
+      "username": "321616",
+      "email": "shyamsundart.ai@krct.ac.in",
+      "first_name": "Shyamsundar",
+      "last_name": "T",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 3
+    },
+    {
+      "username": "321615",
+      "email": "roshanjoshuar.ai@krct.ac.in",
+      "first_name": "Roshanjoshua",
+      "last_name": "R",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 3
+    },
+    {
+      "username": "321609",
+      "email": "joshuaissac.ai@krct.ac.in",
+      "first_name": "Joshuaissac",
+      "last_name": "",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 3
+    },
+    {
+      "username": "321608",
+      "email": "joanyf.ai@krct.ac.in",
+      "first_name": "Joany",
+      "last_name": "F",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 3
+    },
+    {
+      "username": "321614",
+      "email": "praveenkumart.ai@krct.ac.in",
+      "first_name": "Praveenkumar",
+      "last_name": "T",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 3
+    },
+    {
+      "username": "321607",
+      "email": "harishraghavendartk.ai@krct.ac.in",
+      "first_name": "Harishraghavendar",
+      "last_name": "TK",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 3
+    },
+    {
+      "username": "321613",
+      "email": "nalinakeerthana.ai@krct.ac.in",
+      "first_name": "Nalinakreethana",
+      "last_name": "A",
+      "department": null,
+      "position": 3
+    },
+    {
+      "username": "321612",
+      "email": "muthukumaranc.ai@krct.ac.in",
+      "first_name": "Muthukumaran",
+      "last_name": "C",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 3
+    },
+    {
+      "username": "321611",
+      "email": "murugavallis.ai@krct.ac.in",
+      "first_name": "Murugavalli",
+      "last_name": "S",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 3
+    },
+    {
+      "username": "321605",
+      "email": "geetha.ai@krct.ac.in",
+      "first_name": "Geetha",
+      "last_name": "",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 3
+    },
+    {
+      "username": "321604",
+      "email": "ganganaidu.ai@krct.ac.in",
+      "first_name": "Ganga naidu",
+      "last_name": "",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 3
+    },
+    {
+      "username": "321603",
+      "email": "deenarosed.ai@krct.ac.in",
+      "first_name": "Deenarose",
+      "last_name": "D",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 3
+    },
+    {
+      "username": "321602",
+      "email": "bharathim.ai@krct.ac.in",
+      "first_name": "Bharathi",
+      "last_name": "M",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 3
+    },
+    {
+      "username": "3216548",
+      "email": "reeta@krct.com",
+      "first_name": "",
+      "last_name": "",
+      "department": "B.Tech (CSE) Artificial Intelligence & Machine Learning",
+      "position": 3
+    },
+    {
+      "username": "321657",
+      "email": "prab@gma.com",
+      "first_name": "",
+      "last_name": "",
+      "department": null,
+      "position": 3
+    },
+    {
+      "username": "321654",
+      "email": "ai@hod.com",
+      "first_name": "",
+      "last_name": "",
+      "department": "B.Tech Artificial Intelligence & Data Science",
+      "position": 0
+    },
+    {
+      "username": "Admin",
+      "email": "sriram@gmail.com",
+      "first_name": "",
+      "last_name": "",
+      "department": null,
+      "position": 3
+    }
+  ]
+}

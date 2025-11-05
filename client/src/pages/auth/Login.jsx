@@ -50,30 +50,58 @@ const Login = () => {
   
   // ... rest of the file is fine
   return (
-    <div className="login-container">
-      <form onSubmit={handleSubmit}>
-        <h2>Login</h2>
-        {error && <div className="error">{error}</div>}
-        <div>
-          <label>Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={e => setUsername(e.target.value)}
-            required
-          />
+    <div className="sufee-login d-flex align-content-center flex-wrap" style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)' }}>
+      <div className="container">
+        <div className="login-content">
+          <div className="login-logo">
+            <a href="/">
+              <img className="align-content" src="/src/assets/images/logo2.png" alt="Logo" />
+            </a>
+          </div>
+          {error && (
+            <div className="alert alert-danger" role="alert">{error}</div>
+          )}
+          <div className="login-form">
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="username">Register Number</label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  className="form-control"
+                  placeholder="Register Number"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="password">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  className="form-control"
+                  placeholder="Password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="checkbox d-flex justify-content-between align-items-center mb-3">
+                <label>
+                  <input type="checkbox" /> Remember Me
+                </label>
+                <label className="pull-right mb-0">
+                  <a href="/auth/forgot-password">Forgot Password?</a>
+                </label>
+              </div>
+              <button type="submit" className="btn btn-success btn-flat m-b-30 m-t-30">Sign in</button>
+            </form>
+          </div>
         </div>
-        <div>
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Login</button>
-      </form>
+      </div>
     </div>
   );
 };
