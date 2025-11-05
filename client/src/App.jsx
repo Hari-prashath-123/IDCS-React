@@ -1,6 +1,6 @@
 // src/App.jsx
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './utils/ProtectedRoute';
 // ...import pages
 import StudentDashboard from './pages/dashboards/StudentDashboard.jsx';
@@ -18,6 +18,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<Navigate to="/auth/login" replace />} />
         <Route path="/auth/login" element={<Login />} />
     <Route path="/student/dashboard" element={<Layout><ProtectedRoute allowedRoles={['student']}><StudentDashboard /></ProtectedRoute></Layout>} />
     <Route path="/staff/dashboard" element={<Layout><ProtectedRoute allowedRoles={['staff']}><StaffDashboard /></ProtectedRoute></Layout>} />

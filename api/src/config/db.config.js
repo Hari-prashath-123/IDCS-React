@@ -1,7 +1,7 @@
 module.exports = {
-  HOST: 'your_host',
-  USER: 'your_user',
-  PASSWORD: 'your_password',
-  DB: 'your_db',
+  HOST: process.env.DB_HOST,
+  USER: process.env.DB_USER,
+  PASSWORD: process.env.DB_PASSWORD,
+  DB: process.env.DB_NAME,
   dialect: 'postgres',
 };

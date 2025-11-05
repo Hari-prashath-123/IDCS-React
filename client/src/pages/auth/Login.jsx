@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login as apiLogin } from '../../services/auth.service';
+// 1. CHANGE THIS LINE:
+import { authApi } from '../../services/auth.service';
 import { AuthContext } from '../../contexts/AuthContext';
 
 const Login = () => {
@@ -14,14 +15,40 @@ const Login = () => {
     e.preventDefault();
     setError('');
     try {
-      const userData = await apiLogin(username, password);
-      login(userData); // Save user and token globally
-      navigate('/dashboard');
+      // The 'username' variable is passed as the 'email' parameter
+      const userData = await authApi.login(username, password);
+      login(userData);
+      // --- NEW NAVIGATION LOGIC ---
+      // Assuming userData contains the user's role
+      const userRole = userData.role;
+      switch (userRole) {
+        case 'student':
+          navigate('/student/dashboard');
+          break;
+        case 'staff':
+          navigate('/staff/dashboard');
+          break;
+        case 'hod':
+          navigate('/hod/dashboard');
+          break;
+        case 'ahod':
+          navigate('/ahod/dashboard');
+          break;
+        case 'principal':
+          navigate('/principal/dashboard');
+          break;
+        case 'pet_staff':
+          navigate('/petstaff/dashboard');
+          break;
+        default:
+          navigate('/profile');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
     }
   };
-
+  
+  // ... rest of the file is fine
   return (
     <div className="login-container">
       <form onSubmit={handleSubmit}>
