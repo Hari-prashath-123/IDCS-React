@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           const userData = await authService.getProfile();
           setUser(userData);
         } catch (error) {
-          console.error("Auth init failed", error);
+          console.error("Session expired", error);
           authService.logout();
         }
       }

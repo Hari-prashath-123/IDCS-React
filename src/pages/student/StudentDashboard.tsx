@@ -11,7 +11,7 @@ import {
   Megaphone,
 } from "lucide-react";
 import DashboardLayout from "../../components/DashboardLayout";
-import { supabase } from "../../lib/supabase";
+import api from "../../lib/api";
 import { useAuth } from "../../contexts/AuthContext";
 import { useInactivityLogout } from "../../hooks/useInactivityLogout";
 import { studentService, type DashboardData } from "../../services/studentService";
@@ -94,51 +94,16 @@ export default function StudentDashboard() {
   const handleClaimConfirmation = async (confirmed: boolean) => {
     if (confirmed && user?.id) {
       try {
-        // Call backend API to mark bonafide as claimed
-        const { data: appsWithApprovals, error: fetchErr } = await supabase
-          .from('bonafide_applications')
-          .select('id, claimed_at, bonafide_approvals(created_at, approver_role, action)')
-          .eq('student_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(500);
-        
-        if (fetchErr) throw fetchErr;
-
-        const toUpdate: string[] = [];
-        (appsWithApprovals || []).forEach((a: any) => {
-          const approvals = a.bonafide_approvals || [];
-          const psApproval = approvals.find((ap: any) => ap.approver_role === 'ps' && ap.action === 'approved');
-          if (psApproval) {
-            const claimedAt = a.claimed_at ? new Date(a.claimed_at).getTime() : 0;
-            const psTime = new Date(psApproval.created_at).getTime();
-            if (!a.claimed_at || psTime > claimedAt) {
-              toUpdate.push(a.id);
-            }
-          }
-        });
-
-        if (toUpdate.length > 0) {
-          const { error: updErr } = await supabase
-            .from('bonafide_applications')
-            .update({ claimed_at: new Date().toISOString() })
-            .in('id', toUpdate);
-          
-          if (updErr) {
-            console.error('Failed to update claimed_at', updErr);
-            alert('Failed to record claim. Please try again.');
-          } else {
-            // Refresh dashboard to get updated data
-            await fetchDashboard();
-            setShowPSBonafidePopup(false);
-          }
-        } else {
-          setShowPSBonafidePopup(false);
-        }
+        // Ask backend to mark PS-approved bonafide applications as claimed
+        await api.post('/student/bonafide/claim/', {});
+        await fetchDashboard();
+        setShowPSBonafidePopup(false);
       } catch (err) {
         console.error('Error claiming bonafide approvals', err);
         alert('Failed to record claim. Please try again.');
       }
     }
+
     setShowClaimConfirmation(false);
   };
 

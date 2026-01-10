@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// Change this to your Django server URL
+// Change this to your actual Django URL (e.g., http://127.0.0.1:8000/api)
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 const api = axios.create({
@@ -10,7 +10,7 @@ const api = axios.create({
   },
 });
 
-// Add Token to every request
+// 1. Request Interceptor: Attach Token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
   if (token) {
@@ -19,7 +19,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 (Unauthorized) - Auto Logout
+// 2. Response Interceptor: Handle 401 Errors (Auto-Logout)
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -27,7 +27,10 @@ api.interceptors.response.use(
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Optional: Redirect to login
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

@@ -6,8 +6,8 @@ import AuthHeader from "../components/AuthHeader";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
-  const [identifier, setIdentifier] = useState("");
+  const { login } = useAuth();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,11 +19,10 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const user = await signIn(identifier, password);
-      if (!user) throw new Error('Invalid credentials');
-      navigate('/dashboard', { replace: true });
+      await login({ username: email, password });
+      navigate('/', { replace: true });
     } catch (err: any) {
-      setError('Invalid credentials');
+      setError(err?.message || 'Invalid credentials');
       console.error(err);
     } finally {
       setLoading(false);
@@ -44,24 +43,24 @@ export default function Login() {
             )}
 
             <div>
-              <label
-                htmlFor="identifier"
-                className="block text-sm font-medium text-slate-700 mb-2"
-              >
-                Email or Register No
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
-                <input
-                  id="identifier"
-                  type="text"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  required
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="College Email or Reg. No."
-                />
-              </div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-slate-700 mb-2"
+                >
+                  Email
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="you@college.edu"
+                  />
+                </div>
             </div>
 
             <div>

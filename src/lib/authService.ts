@@ -8,8 +8,8 @@ export interface User {
 }
 
 export const authService = {
+  // Login: Sends email/password, gets tokens
   async login(credentials: any) {
-    // Hits Django's /api/token/ endpoint
     const response = await api.post('/token/', credentials);
     const { access, refresh } = response.data;
     
@@ -19,8 +19,8 @@ export const authService = {
     return this.getProfile();
   },
 
+  // Get Profile: Uses token to get user details
   async getProfile() {
-    // Hits Django's /api/users/me/ endpoint
     const response = await api.get('/users/me/');
     const user = response.data;
     localStorage.setItem('user', JSON.stringify(user));
