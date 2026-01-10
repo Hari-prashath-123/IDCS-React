@@ -1,3 +1,28 @@
+from rest_framework.views import APIView
+from .models import Elective
+# StudentElectiveViewSet for /student-electives/
+class StudentElectiveViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated, IsStudent]
+
+    def list(self, request):
+        # Replace with correct logic for fetching current user's elective selections
+        electives = Elective.objects.filter(selected_by=request.user)
+        serializer = ElectiveSerializer(electives, many=True)
+        return Response(serializer.data)
+
+# UserProfileView for /auth/users/me/
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        data = {
+            "id": str(user.id),
+            "username": user.username,
+            "email": user.email,
+            # Add more fields as needed
+        }
+        return Response(data)
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response

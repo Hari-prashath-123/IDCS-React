@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { X, Eye, UploadCloud } from 'lucide-react';
 import DashboardLayout from '../../components/DashboardLayout';
-import { supabase } from '../../lib/supabase';
+import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface CertificateItem {
@@ -82,14 +82,8 @@ export default function CertificateUpload() {
     if (!authId) return;
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('certificates')
-        .select('id, description, file_url, created_at, od_application_id, certificate_type')
-        .eq('user_id', authId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setCerts((data || []) as CertificateItem[]);
+      const resp = await api.get('/certificates/', { params: { user_id: authId } });
+      setCerts((resp.data || []) as CertificateItem[]);
     } catch (e) {
       console.error('Failed to fetch certificates', e);
     } finally {
@@ -181,15 +175,8 @@ export default function CertificateUpload() {
     const authId = user?.id;
     if (!authId) return;
     try {
-      const { data, error } = await supabase
-        .from('od_applications')
-        .select('*')
-        .eq('student_id', authId)
-        .eq('status', 'approved')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setApprovedODs(data || []);
+      const resp = await api.get('/od-applications/', { params: { student_id: authId, status: 'approved' } });
+      setApprovedODs(resp.data || []);
     } catch (e) {
       console.error('Failed to fetch approved OD applications', e);
       setApprovedODs([]);
@@ -222,49 +209,23 @@ export default function CertificateUpload() {
 
     setSubmitting(true);
     try {
-      const bucket = 'certificates';
-      const studentId = user.id;
-
       for (const f of uploadFiles) {
-        const path = odApplicationId ? `${user.id}/od-${odApplicationId}-${Date.now()}-${f.name}` : `${user.id}/${Date.now()}-${f.name}`;
-
-        const { error: uploadErr } = await supabase.storage
-          .from(bucket)
-          .upload(path, f, { cacheControl: '3600', upsert: false });
-        if (uploadErr) {
-          console.error('Storage upload error', uploadErr);
-          throw uploadErr;
-        }
-
-        const { data: pub } = supabase.storage.from(bucket).getPublicUrl(path);
-        const publicUrl = pub?.publicUrl || '';
-
-        const insertPayload: any = {
-          user_id: studentId,
-          role: 'student',
-          description: description || null,
-          file_url: publicUrl,
-        };
-
-        if (odApplicationId) insertPayload.od_application_id = odApplicationId;
-
-        // Attach category-specific metadata if provided (do not insert 'category' field
-        // because the certificates table may not have that column in some schemas)
+        const formData = new FormData();
+        formData.append('file', f);
+        formData.append('user_id', user.id);
+        formData.append('role', 'student');
+        formData.append('description', description || '');
+        if (odApplicationId) formData.append('od_application_id', odApplicationId);
         if (category === 'event') {
-          if (eventCollege) insertPayload.event_college = eventCollege;
-          if (certificateType) insertPayload.certificate_type = certificateType;
+          if (eventCollege) formData.append('event_college', eventCollege);
+          if (certificateType) formData.append('certificate_type', certificateType);
         }
-        if (category === 'exam' && examName) insertPayload.exam_name = examName;
-        if (category === 'course' && courseName) insertPayload.course_name = courseName;
+        if (category === 'exam' && examName) formData.append('exam_name', examName);
+        if (category === 'course' && courseName) formData.append('course_name', courseName);
 
-        const { error: insertErr } = await supabase.from('certificates').insert(insertPayload);
-        if (insertErr) {
-          console.error('Insert certificates error', insertErr);
-          if ((insertErr as any).message && (insertErr as any).message.includes('row-level security')) {
-            throw new Error('Insert failed due to row-level security. Make sure you are signed in and using the correct account.');
-          }
-          throw insertErr;
-        }
+        await api.post('/certificates/upload/', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
       }
 
       setFiles([]);

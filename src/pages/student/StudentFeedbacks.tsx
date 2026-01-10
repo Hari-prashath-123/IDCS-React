@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useAuth } from '../../contexts/AuthContext';
-import { supabase } from '../../lib/supabase';
+import api from '../../lib/api';
 import { MessageSquare, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -29,56 +29,26 @@ export default function StudentFeedbacks() {
       setLoading(true);
       setError(null);
       try {
-        // Assumed schema: feedback_forms(active boolean, title text, description text, created_by uuid, closes_at timestamptz)
-        // Filter: active = true AND created_by belongs to a HOD profile.
-        // We'll first fetch HOD profile IDs.
-        const { data: hodProfiles, error: hodErr } = await supabase
-          .from('profiles')
-          .select('id, role')
-          .eq('role', 'hod');
-        if (hodErr) throw hodErr;
-        const hodIds = (hodProfiles || []).map(p => p.id);
-        if (!hodIds.length) {
-          setForms([]);
-          setLoading(false);
-          return;
-        }
-        const { data: feedbackData, error: fErr } = await supabase
-          .from('feedback_forms')
-          .select('id, title, description, created_at, created_by, active, closes_at, target_year, target_section, target_subject')
-          .eq('active', true)
-          .in('created_by', hodIds)
-          .order('created_at', { ascending: false });
-        if (fErr) throw fErr;
-        // Filter forms by student's year and section when target is set
-        const raw: any[] = (feedbackData || []);
-        const studentRow = await supabase.from('students').select('year, section').eq('id', profile.id).maybeSingle();
-        const year = studentRow.data?.year || null;
-        const section = studentRow.data?.section || null;
-        const filtered = raw.filter(f => {
-          const ty = f.target_year ?? null;
-          const ts = f.target_section ?? null;
-          const yearOk = ty === null || ty === undefined || ty === year;
-          const sectionOk = !ts || ts === section;
-          return yearOk && sectionOk;
-        });
-        setForms(filtered as FeedbackForm[]);
+        // Fetch feedback forms from Django API
+        const resp = await api.get('/feedback/forms/');
+        let formsData: FeedbackForm[] = resp.data || [];
+        // Optionally filter by year/section if needed
+        // If backend already filters, skip this step
+        setForms(formsData);
 
-        // Check which forms the student has already submitted
-        const formIds = filtered.map(f => f.id);
+        // Fetch submission status for these forms
+        const formIds = formsData.map(f => f.id);
         if (formIds.length > 0) {
-          const { data: responses } = await supabase
-            .from('feedback_responses')
-            .select('form_id')
-            .eq('student_id', profile.id)
-            .in('form_id', formIds);
-          
-          const submitted = new Set((responses || []).map(r => r.form_id));
+          const statusResp = await api.get('/feedback/responses/status/', {
+            params: { form_ids: formIds }
+          });
+          // statusResp.data should be an array of submitted form IDs
+          const submitted = new Set((statusResp.data || []));
           setSubmittedFormIds(submitted);
         }
       } catch (e: any) {
         console.error('Error loading feedback forms:', e);
-        setError(e.message || 'Failed to load feedback forms');
+        setError(e?.response?.data?.detail || e.message || 'Failed to load feedback forms');
       } finally {
         setLoading(false);
       }

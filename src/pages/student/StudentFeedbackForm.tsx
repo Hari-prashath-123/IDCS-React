@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
+import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface FeedbackForm {
@@ -36,51 +36,39 @@ export default function StudentFeedbackForm() {
       setLoading(true);
       setError(null);
       try {
-        const { data: formData, error: fErr } = await supabase
-          .from('feedback_forms')
-          .select('id, title, description, active, closes_at')
-          .eq('id', id)
-          .maybeSingle();
-        if (fErr) throw fErr;
-        if (!formData) {
-          setError('Feedback form not found');
-          setLoading(false);
-          return;
-        }
-        if (!formData.active) {
-          setError('This feedback form is no longer active');
+        // Fetch form details
+        const resp = await api.get(`/feedback/forms/${id}/`);
+        const formData = resp.data;
+        if (!formData || !formData.active) {
+          setError('Feedback form not found or inactive');
           setLoading(false);
           return;
         }
         setForm(formData as FeedbackForm);
-        const { data: qData } = await supabase
-          .from('feedback_questions')
-          .select('id, question_text')
-          .eq('form_id', id)
-          .order('order', { ascending: true });
-        setQuestions((qData || []) as any);
-        // load default staff selected by HOD for this form
-        const { data: fFull } = await supabase.from('feedback_forms').select('staff_options, default_staff, submitted_by').eq('id', id).maybeSingle();
-        const defaultStaff = (fFull as any)?.default_staff || null;
-        if (defaultStaff) setFormDefaultStaff(defaultStaff as any);
-        // check if this student already submitted
+        // Fetch questions
+        const qResp = await api.get(`/feedback/forms/${id}/questions/`);
+        setQuestions(qResp.data || []);
+        // Fetch default staff for this form
+        if (formData.default_staff) setFormDefaultStaff(formData.default_staff);
+        // Check if already submitted
         try {
-          const { data: existing } = await supabase.from('feedback_responses').select('*').eq('form_id', id).eq('student_id', profile.id).maybeSingle();
-          if (existing) {
+          const subResp = await api.get(`/feedback/responses/status/`, {
+            params: { form_id: id, student_id: profile.id }
+          });
+          if (subResp.data?.submitted) {
             setAlreadySubmitted(true);
-            setExistingResponse(existing as any);
-            // populate read-only fields
-            setRating(existing.rating || null);
-            setComments(existing.comments || '');
+            setExistingResponse(subResp.data.response);
+            setRating(subResp.data.response?.rating || null);
+            setComments(subResp.data.response?.comments || '');
             const ansMap: Record<string,string> = {};
-            (existing.answers || []).forEach((a: any) => { ansMap[a.question_id] = a.answer; });
+            (subResp.data.response?.answers || []).forEach((a: any) => { ansMap[a.question_id] = a.answer; });
             setAnswers(ansMap);
           }
         } catch (er) {
           console.warn('Failed to check existing response', er);
         }
       } catch (e: any) {
-        setError(e.message || 'Failed to load form');
+        setError(e?.response?.data?.detail || e.message || 'Failed to load form');
       } finally {
         setLoading(false);
       }
@@ -90,46 +78,23 @@ export default function StudentFeedbackForm() {
 
   const handleSubmit = async () => {
     if (!profile || !form) return;
-    // prevent double submit client-side
-    try {
-      const { data: existing } = await supabase.from('feedback_responses').select('id').eq('form_id', form.id).eq('student_id', profile.id).maybeSingle();
-      if (existing) {
-        setAlreadySubmitted(true);
-        setExistingResponse(existing as any);
-        return;
-      }
-    } catch (er) {
-      console.warn('Failed to check duplicate before submit', er);
-    }
     setSubmitting(true);
     try {
-      // Save a feedback_responses row which contains rating, comments, staff_selected and answers as json
-      const answersArr = questions.map(q => ({ question_id: q.id, answer: answers[q.id] || '' }));
+      // Construct answers array for API
+      const answersArr = questions.map(q => ({ question: q.id, answer: answers[q.id] || '' }));
       const payload: any = {
-        form_id: form.id,
-        student_id: profile.id,
+        form: form.id,
+        student: profile.id,
         staff_selected: formDefaultStaff ? formDefaultStaff : null,
         rating: rating,
         comments: comments || null,
         answers: answersArr,
-        created_at: new Date().toISOString(),
       };
-  const { error: insErr } = await supabase.from('feedback_responses').insert([payload]);
-      if (insErr) throw insErr;
-      // mark this student as submitted in feedback_forms.submitted_by
-      try {
-        const { data: cur } = await supabase.from('feedback_forms').select('submitted_by').eq('id', form.id).maybeSingle();
-        const existing = (cur?.submitted_by as any) || [];
-        const updated = Array.isArray(existing) ? [...existing, profile.id] : [profile.id];
-        await supabase.from('feedback_forms').update({ submitted_by: updated }).eq('id', form.id);
-      } catch (e) {
-        console.warn('Failed to update submitted_by for form', e);
-      }
-      // mark submitted locally and redirect to listing
+      await api.post('/feedback/responses/', payload);
       setAlreadySubmitted(true);
       navigate('/student/feedback');
     } catch (e: any) {
-      setError(e.message || 'Failed to submit answers');
+      setError(e?.response?.data?.detail || e.message || 'Failed to submit answers');
     } finally {
       setSubmitting(false);
     }

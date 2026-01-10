@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { Home, BookOpen, CalendarCheck, CheckCircle, XCircle, Clock, FileText, Plane } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
 import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 

@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import DashboardLayout from "../../components/DashboardLayout";
 import Loader from "../../components/Loader";
 import { useAuth } from "../../contexts/AuthContext";
-import { supabase } from "../../lib/supabase";
+import api from "../../lib/api";
 
 interface Subject {
   id: string;
@@ -56,14 +56,9 @@ export default function MySubjects() {
     const load = async () => {
       setLoading(true);
       try {
-        // Determine student's year and section from `students` table
-        const { data: studentRow, error: studErr } = await supabase
-          .from("students")
-          .select("year, section")
-          .eq("id", profile.id)
-          .maybeSingle();
-
-        if (studErr) throw studErr;
+        // Fetch student profile from Django API
+        const studentResp = await api.get(`/students/${profile.id}/`);
+        const studentRow = studentResp.data;
         const year = studentRow?.year || null;
         const section = studentRow?.section || null;
         setStudentYear(year);
@@ -75,124 +70,64 @@ export default function MySubjects() {
           return;
         }
 
-        // Fetch subjects matching department, year and section
-        const q = supabase
-          .from("subjects")
-          .select("*")
-          .eq("department", profile.department) // Only fetch student's department, not ALL
-          .eq("year", year)
-          .order("subject_code", { ascending: true });
-        if (section) q.or(`section.eq.${section},section.eq.ALL`);
-        const { data: subjData, error: subjErr } = await q;
-
-        if (subjErr) {
-          console.warn(
-            "Subjects read error (table may not exist):",
-            subjErr.message || subjErr
-          );
-          setSubjects([]);
-          setLoading(false);
-          return;
-        }
-
-        const subs: Subject[] = (subjData || []) as Subject[];
-        
-        // Fetch parent subject IDs from electives table to identify which are parent containers
-        const { data: electivesData } = await supabase
-          .from('electives')
-          .select('parent_subject_id');
-        
-        const parentSubjectIds = new Set(
-          (electivesData || []).map((e: any) => e.parent_subject_id)
-        );
-        
-        // Filter out parent elective subjects - subjects that are used as parents in electives table
-        const filteredSubs = subs.filter(s => {
-          // Hide subjects that are parent electives (used as parent_subject_id in electives table)
-          if (parentSubjectIds.has(s.id)) {
-            return false;
-          }
-          return true;
+        // Fetch subjects from Django API
+        const subjResp = await api.get('/subjects/', {
+          params: {
+            department: profile.department,
+            year,
+            section,
+          },
         });
-        
+        const subs: Subject[] = subjResp.data || [];
+
+        // Fetch parent subject IDs from electives
+        const electivesResp = await api.get('/electives/parent-ids/');
+        const parentSubjectIds = new Set(electivesResp.data || []);
+        // Filter out parent elective subjects
+        const filteredSubs = subs.filter(s => !parentSubjectIds.has(s.id));
         setSubjects(filteredSubs);
 
-        // Fetch staff profiles used in the list
-        const staffIds = Array.from(
-          new Set(
-            subs.filter((s) => s.staff_id).map((s) => s.staff_id as string)
-          )
-        );
+        // Fetch staff profiles
+        const staffIds = Array.from(new Set(subs.filter(s => s.staff_id).map(s => s.staff_id as string)));
         if (staffIds.length > 0) {
-          const { data: staffProfiles } = await supabase
-            .from("profiles")
-            .select("id, name, email")
-            .in("id", staffIds);
-
+          const staffResp = await api.get('/profiles/', { params: { ids: staffIds } });
           const map: Record<string, { name?: string; email?: string }> = {};
-          (staffProfiles || []).forEach((p: any) => {
+          (staffResp.data || []).forEach((p: any) => {
             map[p.id] = { name: p.name, email: p.email };
           });
           setStaffMap(map);
         }
 
-        // Fetch assigned subelectives for this student and append to the list
+        // Fetch assigned electives for this student
         try {
-          const { data: assignedRows } = await supabase
-            .from("student_electives")
-            .select("elective_id")
-            .eq("student_id", profile.id);
-          const assignedIds = (assignedRows || [])
-            .map((r: any) => r.elective_id)
-            .filter(Boolean);
+          const assignedResp = await api.get(`/student-electives/`, { params: { student_id: profile.id } });
+          const assignedIds = (assignedResp.data || []).map((r: any) => r.elective_id).filter(Boolean);
           if (assignedIds.length > 0) {
-            const { data: electives } = await supabase
-              .from("electives")
-              .select("*")
-              .in("id", assignedIds);
-            if ((electives || []).length > 0) {
-              const parentIds = Array.from(
-                new Set((electives || []).map((e: any) => e.parent_subject_id))
-              );
-              const { data: parents } = await supabase
-                .from("subjects")
-                .select(
-                  "id, name, subject_code, credits, staff_id, department, year, mnemonic"
-                )
-                .in("id", parentIds);
+            const electivesResp2 = await api.get('/electives/', { params: { ids: assignedIds } });
+            const electives = electivesResp2.data || [];
+            if (electives.length > 0) {
+              const parentIds = Array.from(new Set(electives.map((e: any) => e.parent_subject_id)));
+              const parentsResp = await api.get('/subjects/', { params: { ids: parentIds } });
+              const parents = parentsResp.data || [];
               const parentsMap: Record<string, any> = {};
-              (parents || []).forEach((p: any) => (parentsMap[p.id] = p));
+              parents.forEach((p: any) => (parentsMap[p.id] = p));
 
-              const electiveSubjects: Subject[] = (electives || []).map(
-                (e: any) => {
-                  const parent = parentsMap[e.parent_subject_id];
-                  return {
-                    id: `elective-${e.id}`,
-                    subject_code: e.course_code,
-                    name:
-                      e.sub_name ||
-                      (parent ? `${parent.name} (elective)` : "Elective"),
-                    staff_id: e.staff_id || (parent ? parent.staff_id : null),
-                    year:
-                      e.year || (parent ? parent.year : studentRow?.year || 0),
-                    section: undefined,
-                    department:
-                      e.department ||
-                      (parent ? parent.department : profile.department || ""),
-                    credits:
-                      e.credits != null
-                        ? e.credits
-                        : parent
-                        ? parent.credits
-                        : 0,
-                    mnemonic: parent?.mnemonic || undefined,
-                  } as Subject;
-                }
-              );
+              const electiveSubjects: Subject[] = electives.map((e: any) => {
+                const parent = parentsMap[e.parent_subject_id];
+                return {
+                  id: `elective-${e.id}`,
+                  subject_code: e.course_code,
+                  name: e.sub_name || (parent ? `${parent.name} (elective)` : "Elective"),
+                  staff_id: e.staff_id || (parent ? parent.staff_id : null),
+                  year: e.year || (parent ? parent.year : studentRow?.year || 0),
+                  section: undefined,
+                  department: e.department || (parent ? parent.department : profile.department || ""),
+                  credits: e.credits != null ? e.credits : parent ? parent.credits : 0,
+                  mnemonic: parent?.mnemonic || undefined,
+                } as Subject;
+              });
 
-              // Append elective subjects to the main subjects list
               setSubjects((prev) => {
-                // avoid duplicates by id
                 const ids = new Set(prev.map((p) => p.id));
                 const merged = [...prev];
                 electiveSubjects.forEach((es) => {
@@ -201,36 +136,25 @@ export default function MySubjects() {
                 return merged;
               });
 
-              // store mapping parent_subject_id -> { elective, parentName, parentCode } for quick lookup when rendering timetable
+              // store mapping parent_subject_id -> { elective, parentName, parentCode }
               const map: Record<string, any> = {};
-              (electives || []).forEach((e: any) => {
+              electives.forEach((e: any) => {
                 if (e.parent_subject_id) {
                   map[e.parent_subject_id] = {
                     elective: e,
                     parentName: parentsMap[e.parent_subject_id]?.name || null,
-                    parentCode:
-                      parentsMap[e.parent_subject_id]?.subject_code || null,
+                    parentCode: parentsMap[e.parent_subject_id]?.subject_code || null,
                   };
                 }
               });
               setAssignedElectivesByParent(map);
 
-              // also fetch staff profiles for elective staff
-              const electiveStaffIds = Array.from(
-                new Set(
-                  (electiveSubjects || [])
-                    .map((s) => s.staff_id)
-                    .filter(Boolean)
-                )
-              );
+              // fetch staff profiles for elective staff
+              const electiveStaffIds = Array.from(new Set(electiveSubjects.map(s => s.staff_id).filter(Boolean)));
               if (electiveStaffIds.length > 0) {
-                const { data: electiveStaff } = await supabase
-                  .from("profiles")
-                  .select("id, name, email")
-                  .in("id", electiveStaffIds as any[]);
-                const map2: Record<string, { name?: string; email?: string }> =
-                  {};
-                (electiveStaff || []).forEach((p: any) => {
+                const electiveStaffResp = await api.get('/profiles/', { params: { ids: electiveStaffIds } });
+                const map2: Record<string, { name?: string; email?: string }> = {};
+                (electiveStaffResp.data || []).forEach((p: any) => {
                   map2[p.id] = { name: p.name, email: p.email };
                 });
                 setStaffMap((prevMap) => ({ ...prevMap, ...map2 }));
@@ -242,12 +166,11 @@ export default function MySubjects() {
         }
       } catch (err: any) {
         console.error("Error loading MySubjects:", err);
-        setError(err.message || String(err));
+        setError(err?.response?.data?.detail || err.message || String(err));
       } finally {
         setLoading(false);
       }
     };
-
     load();
   }, [profile]);
 

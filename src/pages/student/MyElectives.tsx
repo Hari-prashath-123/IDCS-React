@@ -3,6 +3,7 @@ import DashboardLayout from '../../components/DashboardLayout';
 import { BookOpen, Home, CalendarDays, CheckCircle } from 'lucide-react';
 import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { toast } from 'react-hot-toast';
 
 type Elective = {
   id: string;
@@ -15,6 +16,7 @@ type Elective = {
   group: string;
   seat_count: number | null;
   seats_filled: number;
+  seats_available: number | null;
   is_active: boolean;
   parent_subject?: {
     name: string;
@@ -66,162 +68,51 @@ export default function MyElectives() {
 
   useEffect(() => {
     if (!profile) return;
-    
-    const initializeStudent = async () => {
-      // Fetch student's year from students table
-      const { data: studentData, error } = await supabase
-        .from('students')
-        .select('year')
-        .eq('id', profile.id)
-        .single();
-      
-      if (error) {
-        console.error('Error fetching student year:', error);
-      } else if (studentData) {
-        setStudentYear(studentData.year);
-        console.log('Student year from students table:', studentData.year);
-      }
-      
-      // Determine student's group based on department
-      const dept = profile.department;
-      let group = "";
-      for (const [groupKey, depts] of Object.entries(GROUP_MAPPING)) {
-        if (depts.includes(dept)) {
-          group = groupKey;
-          break;
+    const fetchProfileAndElectives = async () => {
+      try {
+        // Fetch student profile from Django
+        const resp = await api.get('/auth/users/me/');
+        const user = resp.data;
+        setStudentYear(user.year);
+        // Determine group
+        const dept = user.department;
+        let group = "";
+        for (const [groupKey, depts] of Object.entries(GROUP_MAPPING)) {
+          if (depts.includes(dept)) {
+            group = groupKey;
+            break;
+          }
         }
-      }
-          // Determine student's group based on department
-      console.log('Student department:', dept, 'Detected group:', group, 'Year:', studentData?.year);
-      setStudentGroup(group);
-
-      // For first year students, don't match by group/department — fetch all year=1 electives
-      if (studentData?.year === 1) {
-        fetchElectives(null, dept, 1);
+        setStudentGroup(group);
+        // Fetch electives and selections
+        if (user.year === 1) {
+          fetchElectives(null, dept, 1);
+        } else if (group) {
+          fetchElectives(group, dept, user.year);
+        }
         fetchCurrentSelections();
-      } else if (group) {
-        fetchElectives(group, dept, studentData?.year);
-        fetchCurrentSelections();
+      } catch (error) {
+        setStudentYear(null);
+        setElectives([]);
       }
     };
-    
-    initializeStudent();
+    fetchProfileAndElectives();
   }, [profile]);
 
-  // Polling loop for elective seat updates to avoid per-client realtime websocket
-  useEffect(() => {
-    if (!profile) return;
-
-    const POLL_INTERVAL_MS = 8000; // 8 seconds
-    let interval: number | undefined;
-
-    const shouldPoll = () => {
-      // Only poll when page is visible to reduce unnecessary load
-      if (typeof document !== 'undefined' && document.hidden) return false;
-      // Ensure we have either year or group info
-      if (studentYear === 1) return true;
-      if (!studentGroup || !profile?.department) return false;
-      return true;
-    };
-
-    const pollOnce = () => {
-      if (!shouldPoll()) return;
-      if (studentYear === 1) {
-        fetchElectives(null, profile.department, 1);
-        fetchCurrentSelections();
-      } else {
-        fetchElectives(studentGroup, profile.department, studentYear || undefined);
-        fetchCurrentSelections();
-      }
-    };
-
-    // Initial poll
-    pollOnce();
-
-    // Setup interval
-    interval = window.setInterval(() => {
-      pollOnce();
-    }, POLL_INTERVAL_MS);
-
-    // Visibility change handler to immediately poll when user returns
-    const onVisibility = () => {
-      if (!document.hidden) pollOnce();
-    };
-    document.addEventListener('visibilitychange', onVisibility);
-
-    return () => {
-      if (interval) clearInterval(interval);
-      document.removeEventListener('visibilitychange', onVisibility);
-    };
-  }, [studentGroup, profile?.department, studentYear]);
+  // No polling needed; backend enforces seat logic and state
 
   const fetchElectives = async (group: string | null, department: string, year?: number) => {
     setLoading(true);
     try {
-      console.log('Fetching electives with:', { group, department, year: year || 'ANY', is_active: true });
-      
-      // Query electives - no department filter needed since department is NULL
-      // One row per elective serves all departments in the group
-      let query = supabase
-        .from('electives')
-        .select(`
-          *,
-          parent_subject:subjects!parent_subject_id(name, subject_code),
-          staff:profiles!staff_id(name, department),
-          blocked_departments:elective_blocked_departments(department)
-        `)
-        .eq('is_active', true);
-
-      // For Year 1 students, ignore group/department — fetch all electives for year=1
-      if (year === 1) {
-        query = query.eq('year', 1);
-      } else {
-        // Use group filtering (includes ALL)
-        query = query.in('group', [group, 'ALL']);
-      }
-      
-      // Only filter by year if student has a year set
-      if (year) {
-        query = query.eq('year', year);
-      }
-      
-      query = query
-        .order('parent_subject_id', { ascending: true })
-        .order('sub_name', { ascending: true });
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Error fetching electives:', error);
-        throw error;
-      }
-      
-      // Filter electives so the student only sees electives intended for their department
-      const filteredElectives = (data || []).filter((elective: any) => {
-        // Always include Year 1 electives when requested
-        if (year === 1) return true;
-
-        // Exclude if this elective has blocked departments that include the student's department
-        const blocked = (elective.blocked_departments || []).map((b: any) => b.department);
-        if (blocked.length > 0 && blocked.includes(department)) return false;
-
-        // For group='ALL' electives: show to all students except those in blocked departments
-        if (elective.group === 'ALL') return true;
-
-        // If elective row has no department (null), it's a group-level elective — include it
-        if (elective.department === null || elective.department === undefined) return true;
-
-        // If elective is explicitly for ALL departments, include it
-        if (elective.department === 'ALL') return true;
-
-        // Otherwise only include if elective.department matches student's department
-        return elective.department === department;
-      });
-
-      console.log('Fetched electives count:', (data || []).length, 'After dept filter:', filteredElectives.length);
-      setElectives(filteredElectives);
+      // Compose params for API
+      const params: any = { is_active: true };
+      if (year) params.year = year;
+      if (group) params.group = group;
+      if (department) params.department = department;
+      // GET /electives/?year=...&group=...&department=...
+      const resp = await api.get('/electives/', { params });
+      setElectives(resp.data || []);
     } catch (error) {
-      console.error('Error fetching electives:', error);
       setElectives([]);
     } finally {
       setLoading(false);
@@ -229,57 +120,73 @@ export default function MyElectives() {
   };
 
   const fetchCurrentSelections = async () => {
-    if (!profile) return;
-    
     try {
-      const { data, error } = await supabase
-        .from('student_electives')
-        .select('id, elective_id, is_locked, locked_at, admin_changed, admin_changed_at, electives(parent_subject_id)')
-        .eq('student_id', profile.id);
-
-      if (!error && data) {
-        const selections: { [parentId: string]: string } = {};
-        const submitted: { [parentId: string]: string } = {};
-        const locked: { [key: string]: boolean } = {};
-        const adminChangedMap: { [key: string]: boolean } = {};
-        
-        data.forEach((item: any) => {
-          const parentId = item.electives?.parent_subject_id;
-          if (parentId) {
-            selections[parentId] = item.elective_id;
-            submitted[parentId] = item.elective_id;
-            locked[parentId] = item.is_locked || false;
-            adminChangedMap[parentId] = item.admin_changed || false;
-          }
-        });
-        
-        setSelectedElectives(selections);
-        setSubmittedSelections(submitted);
-        setLockedSelections(locked);
-        setAdminChanged(adminChangedMap);
-      }
+      const resp = await api.get('/student-electives/');
+      const data = resp.data || [];
+      const selections: { [parentId: string]: string } = {};
+      const submitted: { [parentId: string]: string } = {};
+      const locked: { [key: string]: boolean } = {};
+      const adminChangedMap: { [key: string]: boolean } = {};
+      data.forEach((item: any) => {
+        const parentId = item.parent_subject_id;
+        if (parentId) {
+          selections[parentId] = item.elective_id;
+          submitted[parentId] = item.elective_id;
+          locked[parentId] = item.is_locked || false;
+          adminChangedMap[parentId] = item.admin_changed || false;
+        }
+      });
+      setSelectedElectives(selections);
+      setSubmittedSelections(submitted);
+      setLockedSelections(locked);
+      setAdminChanged(adminChangedMap);
     } catch (error) {
-      console.error('Error fetching selections:', error);
+      setSelectedElectives({});
+      setSubmittedSelections({});
+      setLockedSelections({});
+      setAdminChanged({});
     }
   };
 
   const handleSelectElective = (parentId: string, electiveId: string) => {
-    // Don't allow changes if selection is locked
     if (lockedSelections[parentId]) {
-      alert('This selection is locked and cannot be changed.');
-          } else {
-            throw e;
-          }
+      toast.error('This selection is locked and cannot be changed.');
+      return;
+    }
+    setSelectedElectives(prev => ({
+      ...prev,
+      [parentId]: electiveId
+    }));
+  };
+
+  const handleSubmitSelection = async (parentId: string, isLocking: boolean = false) => {
+    if (!selectedElectives[parentId]) return;
+    if (lockedSelections[parentId]) {
+      toast.error('This selection is already locked and cannot be changed.');
+      return;
+    }
+    setSaving(true);
+    try {
+      const electiveId = selectedElectives[parentId];
+      try {
+        await api.post(`/electives/${electiveId}/select/`, isLocking ? { lock: true } : {});
+        setSubmittedSelections(prev => ({ ...prev, [parentId]: electiveId }));
+        if (isLocking) setLockedSelections(prev => ({ ...prev, [parentId]: true }));
+        toast.success(isLocking ? 'Elective selection locked!' : 'Elective selection saved!');
+      } catch (e: any) {
+        const status = e?.response?.status;
+        if (status === 400) {
+          toast.error('Seats are full');
+        } else {
+          toast.error('Failed to save selection');
         }
       }
       // Refresh electives to get updated seat counts
       if (studentYear === 1) {
-        fetchElectives(null, profile.department, 1);
-      } else if (studentGroup && profile.department) {
-        fetchElectives(studentGroup, profile.department, studentYear || undefined);
+        fetchElectives(null, profile?.department, 1);
+      } else if (studentGroup && profile?.department) {
+        fetchElectives(studentGroup, profile?.department, studentYear || undefined);
       }
-    } catch (error: any) {
-      alert('Failed to save selection: ' + error.message);
     } finally {
       setSaving(false);
     }

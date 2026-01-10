@@ -13,14 +13,14 @@ import {
 } from "lucide-react";
 import DashboardLayout from "../../components/DashboardLayout";
 import Loader from "../../components/Loader";
+import api from "../../lib/api";
 import {
-  supabase,
   ApplicationType,
   Student,
   Approval,
   getApplicationTableName,
   getApprovalsTableName,
-} from "../../lib/supabase";
+} from "../../lib/supabase-types";
 import { useAuth } from "../../contexts/AuthContext";
 
 interface ApplicationPageProps {
@@ -196,52 +196,38 @@ export default function ApplicationPage({ type }: ApplicationPageProps) {
 
   const fetchStudentData = async () => {
     try {
-      const { data, error } = await supabase
-        .from("students")
-        .select("*")
-        .eq("id", user?.id)
-        .maybeSingle();
-
-      if (error) throw error;
-      setStudentData(data);
+      const resp = await api.get('/students/me/');
+      setStudentData(resp.data);
       // also load the profiles row for this student (profile may contain department and canonical names)
       try {
-        const { data: pData, error: pErr } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user?.id)
-          .maybeSingle();
-        if (!pErr) setStudentProfile(pData || null);
+        const pResp = await api.get('/profiles/me/');
+        setStudentProfile(pResp.data || null);
       } catch (e) {
         console.debug("Failed to load profile for student autofill", e);
       }
 
       // If this is the Bonafide form, prefill fields from profile first, then students
+      const data = resp.data;
+      const studentProfile = pResp?.data;
       if (type === "bonafide" && (data || studentProfile)) {
         const prefill: any = {};
-        // Branch / department: prefer profile.department, fallback to students.department
         if (studentProfile?.department)
           prefill.branch = studentProfile.department;
         else if (data?.department) prefill.branch = data.department;
-        // Father's name: prefer profile first_name/last_name fields if available for canonical name, else students.fathers_name
         if (studentProfile?.first_name || studentProfile?.last_name) {
-          // do not overwrite the fathersName field with student's own name; keep student father's name from students table
         }
         if ((data as any).fathers_name)
           prefill.fathersName = (data as any).fathers_name;
         else if ((data as any).father_name)
           prefill.fathersName = (data as any).father_name;
-        // Community
         if (studentProfile?.community)
           prefill.community = studentProfile.community;
         else if ((data as any).community)
           prefill.community = (data as any).community;
-        // Year -> map numeric year to roman-ish label used in select
         if (data?.year) {
           const mapY: any = { 1: "I", 2: "II", 3: "III", 4: "IV" };
           prefill.year = mapY[data.year] || String(data.year);
         }
-        // Residence -> studyMode
         if ((studentProfile as any)?.residence) {
           const res = (studentProfile as any).residence as string;
           prefill.studyMode = res.toLowerCase().startsWith("hostel")
@@ -253,7 +239,6 @@ export default function ApplicationPage({ type }: ApplicationPageProps) {
             ? "hostel"
             : "day_scholar";
         }
-        // college_bus boolean -> busOption
         if ((studentProfile as any)?.college_bus != null) {
           prefill.busOption = (studentProfile as any).college_bus
             ? "college"
@@ -261,7 +246,6 @@ export default function ApplicationPage({ type }: ApplicationPageProps) {
         } else if ((data as any).college_bus != null) {
           prefill.busOption = (data as any).college_bus ? "college" : "out";
         }
-        // first_graduate boolean -> Yes/No
         if ((studentProfile as any)?.first_graduate != null) {
           prefill.firstGraduate = (studentProfile as any).first_graduate
             ? "Yes"
@@ -269,58 +253,27 @@ export default function ApplicationPage({ type }: ApplicationPageProps) {
         } else if ((data as any).first_graduate != null) {
           prefill.firstGraduate = (data as any).first_graduate ? "Yes" : "No";
         }
-
-        // Merge into current formData, preserving existing values
         setFormData((prev) => ({ ...prev, ...prefill }));
       }
 
       // Fetch staff names and leave status
       if (data?.mentor_id) {
-        const { data: mentorProfile } = await supabase
-          .from("profiles")
-          .select("name")
-          .eq("id", data.mentor_id)
-          .maybeSingle();
-
-        setMentorName(mentorProfile?.name || "");
-
-        const { data: mentorStaff } = await supabase
-          .from("staff")
-          .select("on_leave")
-          .eq("id", data.mentor_id)
-          .maybeSingle();
-
-        setMentorOnLeave(mentorStaff?.on_leave || false);
+        const mentorProfileResp = await api.get(`/profiles/${data.mentor_id}/`);
+        setMentorName(mentorProfileResp.data?.name || "");
+        const mentorStaffResp = await api.get(`/staff/${data.mentor_id}/`);
+        setMentorOnLeave(mentorStaffResp.data?.on_leave || false);
       }
-
       if (data?.advisor_id) {
-        const { data: advisorProfile } = await supabase
-          .from("profiles")
-          .select("name")
-          .eq("id", data.advisor_id)
-          .maybeSingle();
-
-        setAdvisorName(advisorProfile?.name || "");
+        const advisorProfileResp = await api.get(`/profiles/${data.advisor_id}/`);
+        setAdvisorName(advisorProfileResp.data?.name || "");
       }
-
       if (data?.ahod_id) {
-        const { data: ahodProfile } = await supabase
-          .from("profiles")
-          .select("name")
-          .eq("id", data.ahod_id)
-          .maybeSingle();
-
-        setAhodName(ahodProfile?.name || "");
+        const ahodProfileResp = await api.get(`/profiles/${data.ahod_id}/`);
+        setAhodName(ahodProfileResp.data?.name || "");
       }
-
       if (data?.hod_id) {
-        const { data: hodProfile } = await supabase
-          .from("profiles")
-          .select("name")
-          .eq("id", data.hod_id)
-          .maybeSingle();
-
-        setHodName(hodProfile?.name || "");
+        const hodProfileResp = await api.get(`/profiles/${data.hod_id}/`);
+        setHodName(hodProfileResp.data?.name || "");
       }
     } catch (error) {
       console.error("Error fetching student data:", error);
