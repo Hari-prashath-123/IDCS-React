@@ -1,1 +1,61 @@
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
 node_modules/
+dist/
+dist-ssr/
+build/
+out/
+
+# Vite cache
+.vite/
+/.cache
+.cache/
+.parcel-cache/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Env files - keep local envs out of repo
+.env
+.env.local
+.env.*.local
+
+# Editor/IDE
+.vscode/
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Misc generated files
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.eslintcache
+
+# Storybook
+storybook-static/
+
+# Local Netlify folder
+.netlify

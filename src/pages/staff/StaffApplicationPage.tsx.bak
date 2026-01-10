@@ -1,0 +1,632 @@
+import { useState, useEffect } from 'react';
+import { FileText, Calendar, CreditCard, Award, Home, CheckCircle, XCircle } from 'lucide-react';
+import DashboardLayout from '../../components/DashboardLayout';
+import { supabase, ApplicationType, Application, Student, Profile, Approval } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
+
+interface StaffApplicationPageProps {
+  type: ApplicationType;
+}
+
+export default function StaffApplicationPage({ type }: StaffApplicationPageProps) {
+  const { user } = useAuth();
+  const [applications, setApplications] = useState<
+    (Application & {
+      student: Student & { profile: Profile };
+      approvals: Approval[];
+      mentorOnLeave?: boolean;
+      advisorOnLeave?: boolean;
+      ahodOnLeave?: boolean;
+      hodOnLeave?: boolean;
+    })[]
+  >([]);
+  const [loading, setLoading] = useState(true);
+  const [onLeave, setOnLeave] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      fetchApplications();
+      fetchLeaveStatus();
+    }
+  }, [user, type]);
+
+  const fetchLeaveStatus = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('staff')
+        .select('on_leave')
+        .eq('id', user?.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      setOnLeave(data?.on_leave || false);
+    } catch (error) {
+      console.error('Error fetching leave status:', error);
+    }
+  };
+
+  const fetchApplications = async () => {
+    try {
+      const { data: students, error: studentsError } = await supabase
+        .from('students')
+        .select('*')
+        .or(`mentor_id.eq.${user?.id},advisor_id.eq.${user?.id}`);
+
+      if (studentsError) throw studentsError;
+
+      const studentIds = students?.map((s) => s.id) || [];
+
+      if (studentIds.length === 0) {
+        setApplications([]);
+        setLoading(false);
+        return;
+      }
+
+      const { data: apps, error: appsError } = await supabase
+        .from('applications')
+        .select('*')
+        .in('student_id', studentIds)
+        .eq('type', type)
+        .order('created_at', { ascending: false });
+
+      if (appsError) throw appsError;
+
+      const appsWithDetails = await Promise.all(
+        (apps || []).map(async (app) => {
+          const student = students?.find((s) => s.id === app.student_id);
+
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', app.student_id)
+            .maybeSingle();
+
+          const { data: approvals } = await supabase
+            .from('approvals')
+            .select('*')
+            .eq('application_id', app.id)
+            .order('created_at', { ascending: true });
+
+          // Check if mentor is on leave
+          let mentorOnLeave = false;
+          if (student?.mentor_id) {
+            const { data: mentorStaff } = await supabase
+              .from('staff')
+              .select('on_leave')
+              .eq('id', student.mentor_id)
+              .maybeSingle();
+            mentorOnLeave = mentorStaff?.on_leave || false;
+          }
+
+          // Check if advisor is on leave
+          let advisorOnLeave = false;
+          if (student?.advisor_id) {
+            const { data: advisorStaff } = await supabase
+              .from('staff')
+              .select('on_leave')
+              .eq('id', student.advisor_id)
+              .maybeSingle();
+            advisorOnLeave = advisorStaff?.on_leave || false;
+          }
+
+          // Check if AHOD is on leave
+          let ahodOnLeave = false;
+          if (student?.ahod_id) {
+            const { data: ahodStaff } = await supabase
+              .from('staff')
+              .select('on_leave')
+              .eq('id', student.ahod_id)
+              .maybeSingle();
+            ahodOnLeave = ahodStaff?.on_leave || false;
+          }
+
+          // Check if HOD is on leave
+          let hodOnLeave = false;
+          if (student?.hod_id) {
+            const { data: hodStaff } = await supabase
+              .from('staff')
+              .select('on_leave')
+              .eq('id', student.hod_id)
+              .maybeSingle();
+            hodOnLeave = hodStaff?.on_leave || false;
+          }
+
+          return {
+            ...app,
+            student: { ...student, profile } as Student & { profile: Profile },
+            approvals: approvals || [],
+            mentorOnLeave,
+            advisorOnLeave,
+            ahodOnLeave,
+            hodOnLeave,
+          };
+        })
+      );
+
+      setApplications(appsWithDetails);
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+          let mentorOnLeave = false;
+          if (student?.mentor_id) {
+            const { data: mentorStaff } = await supabase
+              .from('staff')
+              .select('on_leave')
+              .eq('id', student.mentor_id)
+              .maybeSingle();
+            mentorOnLeave = mentorStaff?.on_leave || false;
+          }
+
+          // Check if advisor is on leave
+          let advisorOnLeave = false;
+          if (student?.advisor_id) {
+            const { data: advisorStaff } = await supabase
+              .from('staff')
+              .select('on_leave')
+              .eq('id', student.advisor_id)
+              .maybeSingle();
+            advisorOnLeave = advisorStaff?.on_leave || false;
+          }
+
+          // Check if AHOD is on leave
+          let ahodOnLeave = false;
+          if (student?.ahod_id) {
+            const { data: ahodStaff } = await supabase
+              .from('staff')
+              .select('on_leave')
+              .eq('id', student.ahod_id)
+              .maybeSingle();
+            ahodOnLeave = ahodStaff?.on_leave || false;
+          }
+
+          // Check if HOD is on leave
+          let hodOnLeave = false;
+          if (student?.hod_id) {
+            const { data: hodStaff } = await supabase
+              .from('staff')
+              .select('on_leave')
+              .eq('id', student.hod_id)
+              .maybeSingle();
+            hodOnLeave = hodStaff?.on_leave || false;
+          }
+
+          return {
+            ...app,
+            student: { ...student, profile } as Student & { profile: Profile },
+            approvals: approvals || [],
+            mentorOnLeave,
+            advisorOnLeave,
+            ahodOnLeave,
+            hodOnLeave,
+          };
+        })
+      );
+
+      setApplications(appsWithDetails);
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApproval = async (appId: string, action: 'approved' | 'rejected', remarks: string) => {
+    try {
+      // Check if staff is on leave before allowing approval
+      if (onLeave) {
+        alert('You cannot approve/reject applications while on leave. Please change your leave status first.');
+        return;
+      }
+
+      const app = applications.find((a) => a.id === appId);
+      if (!app) return;
+
+      const studentData = await supabase
+        .from('students')
+        .select('*')
+        .eq('id', app.student_id)
+        .maybeSingle();
+
+      if (!studentData.data) {
+        alert('Student data not found');
+        return;
+      }
+
+  const student = studentData.data;
+
+      // Determine approver role
+      let approverRole: 'mentor' | 'advisor' | 'ahod' | 'hod' = 'mentor';
+      
+      // Check if mentor is on leave
+      let mentorIsOnLeave = false;
+      if (student.mentor_id) {
+        const { data: mentorStaff } = await supabase
+          .from('staff')
+          .select('on_leave')
+          .eq('id', student.mentor_id)
+          .maybeSingle();
+        mentorIsOnLeave = mentorStaff?.on_leave || false;
+      }
+
+      // Check if advisor is on leave
+      let advisorIsOnLeave = false;
+      if (student.advisor_id) {
+        const { data: advisorStaff } = await supabase
+          .from('staff')
+          .select('on_leave')
+          .eq('id', student.advisor_id)
+          .maybeSingle();
+        advisorIsOnLeave = advisorStaff?.on_leave || false;
+      }
+
+      // Check if AHOD is on leave
+      let ahodIsOnLeave = false;
+      if (student.ahod_id) {
+        const { data: ahodStaff } = await supabase
+          .from('staff')
+          .select('on_leave')
+          .eq('id', student.ahod_id)
+          .maybeSingle();
+        ahodIsOnLeave = ahodStaff?.on_leave || false;
+      }
+
+      if (student.hod_id === user?.id) {
+        // User is the HOD
+        approverRole = 'hod';
+      } else if (student.ahod_id === user?.id) {
+        // User is the AHOD
+        approverRole = 'ahod';
+      } else if (student.advisor_id === user?.id) {
+        // User is the advisor
+        approverRole = 'advisor';
+      } else if (student.mentor_id === user?.id) {
+        // User is the mentor
+        approverRole = 'mentor';
+      }
+
+      console.log('Approval details:', {
+        appId: appId.slice(0, 8),
+        userId: user?.id,
+        approverRole,
+        mentorIsOnLeave,
+        advisorIsOnLeave,
+        ahodIsOnLeave,
+        currentLevel: app.current_approver_level
+      });
+
+      await supabase.from('approvals').insert({
+        application_id: appId,
+        approver_id: user?.id,
+        approver_role: approverRole,
+        action,
+        remarks,
+      });
+
+      if (action === 'rejected') {
+        await supabase
+          .from('applications')
+          .update({
+            status: 'rejected',
+            current_approver_level: 'completed',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', appId);
+      } else {
+        // Determine next level based on current approver role
+        let nextLevel: 'advisor' | 'ahod' | 'hod' | 'completed' = 'completed';
+        
+        if (approverRole === 'mentor') {
+          nextLevel = 'advisor';
+        } else if (approverRole === 'advisor') {
+          nextLevel = 'ahod';
+        } else if (approverRole === 'ahod') {
+          nextLevel = 'hod';
+        }
+
+        // Check if this is the last approver (no one at next level)
+        const isLastApprover = 
+          (approverRole === 'advisor' && !student.ahod_id) ||
+          (approverRole === 'ahod' && !student.hod_id) ||
+          approverRole === 'hod';
+
+        await supabase
+          .from('applications')
+          .update({
+            status: isLastApprover ? 'approved' : 'pending',
+            current_approver_level: isLastApprover ? 'completed' : nextLevel,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', appId);
+      }
+
+      alert(`Application ${action} successfully!`);
+      fetchApplications();
+    } catch (error) {
+      console.error('Error processing approval:', error);
+      alert('Failed to process approval. Please try again.');
+    }
+  };
+
+  const sidebarItems = [
+    { label: 'Dashboard', path: '/staff-dashboard', icon: <Home className="h-5 w-5" /> },
+    { label: 'OD Applications', path: '/staff/od', icon: <FileText className="h-5 w-5" /> },
+    { label: 'Leave Applications', path: '/staff/leave', icon: <Calendar className="h-5 w-5" /> },
+    { label: 'Gatepass Applications', path: '/staff/gatepass', icon: <CreditCard className="h-5 w-5" /> },
+    { label: 'Bonafide Applications', path: '/staff/bonafide', icon: <Award className="h-5 w-5" /> },
+  ];
+
+  const typeConfig = {
+    od: { title: 'On Duty', icon: <FileText className="h-8 w-8" /> },
+    leave: { title: 'Leave', icon: <Calendar className="h-8 w-8" /> },
+    gatepass: { title: 'Gatepass', icon: <CreditCard className="h-8 w-8" /> },
+    bonafide: { title: 'Bonafide', icon: <Award className="h-8 w-8" /> },
+  };
+
+  return (
+    <DashboardLayout sidebarItems={sidebarItems}>
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="bg-blue-100 rounded-lg p-3 text-blue-600">
+                {typeConfig[type].icon}
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-slate-800">
+                  {typeConfig[type].title} Applications
+                </h1>
+                <p className="text-slate-600 mt-1">
+                  Review and approve student applications
+                </p>
+              </div>
+            </div>
+            
+            {/* Leave Status Indicator */}
+            {onLeave && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg px-4 py-2">
+                <p className="text-orange-700 font-semibold text-sm">
+                  ⚠️ On Leave - Applications forwarded to advisor
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-slate-600">Loading applications...</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {applications.length === 0 ? (
+              <div className="bg-white rounded-xl shadow-lg border border-slate-200 p-12 text-center">
+                <p className="text-slate-500">No applications found</p>
+              </div>
+            ) : (
+              applications.map((app) => {
+                // Determine if current user can approve this application
+                const isMentor = app.student.mentor_id === user?.id;
+                const isAdvisor = app.student.advisor_id === user?.id;
+                const isAHOD = app.student.ahod_id === user?.id;
+                const isHOD = app.student.hod_id === user?.id;
+                
+                // Debug logging
+                console.log('Application check:', {
+                  appId: app.id.slice(0, 8),
+                  status: app.status,
+                  current_approver_level: app.current_approver_level,
+                  isMentor,
+                  isAdvisor,
+                  isAHOD,
+                  isHOD,
+                  onLeave,
+                  mentorOnLeave: app.mentorOnLeave,
+                  advisorOnLeave: app.advisorOnLeave,
+                  ahodOnLeave: app.ahodOnLeave,
+                  studentMentorId: app.student.mentor_id,
+                  studentAdvisorId: app.student.advisor_id,
+                  studentAhodId: app.student.ahod_id,
+                  studentHodId: app.student.hod_id,
+                  currentUserId: user?.id
+                });
+                
+                const canApprove =
+                  app.status === 'pending' &&
+                  (
+                    // Normal flow: Mentor can approve if at mentor level and not on leave
+                    (app.current_approver_level === 'mentor' && isMentor && !onLeave) ||
+                    // Normal flow: Advisor can approve if at advisor level and not on their own leave
+                    (app.current_approver_level === 'advisor' && isAdvisor && !onLeave) ||
+                    // Normal flow: AHOD can approve if at ahod level and not on their own leave
+                    (app.current_approver_level === 'ahod' && isAHOD && !onLeave) ||
+                    // Normal flow: HOD can approve if at hod level and not on their own leave
+                    (app.current_approver_level === 'hod' && isHOD && !onLeave) ||
+                    // OVERRIDE 1: Advisor can also approve if at mentor level BUT mentor is on leave
+                    (app.current_approver_level === 'mentor' && app.mentorOnLeave && isAdvisor && !onLeave) ||
+                    // OVERRIDE 2: AHOD can also approve if at advisor level BUT advisor is on leave
+                    (app.current_approver_level === 'advisor' && app.advisorOnLeave && isAHOD && !onLeave) ||
+                    // OVERRIDE 3: AHOD can also approve if at mentor level BUT BOTH mentor AND advisor are on leave
+                    (app.current_approver_level === 'mentor' && app.mentorOnLeave && app.advisorOnLeave && isAHOD && !onLeave) ||
+                    // OVERRIDE 4: HOD can also approve if at ahod level BUT AHOD is on leave
+                    (app.current_approver_level === 'ahod' && app.ahodOnLeave && isHOD && !onLeave) ||
+                    // OVERRIDE 5: HOD can also approve if at advisor level BUT advisor AND AHOD are on leave
+                    (app.current_approver_level === 'advisor' && app.advisorOnLeave && app.ahodOnLeave && isHOD && !onLeave) ||
+                    // OVERRIDE 6: HOD can also approve if at mentor level BUT ALL (mentor, advisor, AHOD) are on leave
+                    (app.current_approver_level === 'mentor' && app.mentorOnLeave && app.advisorOnLeave && app.ahodOnLeave && isHOD && !onLeave)
+                  );
+
+                console.log('Can approve:', canApprove);
+
+                return (
+                  <div
+                    key={app.id}
+                    className="bg-white rounded-xl shadow-lg border border-slate-200 p-6"
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-800">
+                          {app.student.profile?.name}
+                        </h3>
+                        <p className="text-sm text-slate-600">
+                          {app.student.reg_no} • Year {app.student.year} •
+                          Section {app.student.section}
+                        </p>
+                      </div>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          app.status === 'approved'
+                            ? 'bg-green-100 text-green-700'
+                            : app.status === 'rejected'
+                            ? 'bg-red-100 text-red-700'
+                            : 'bg-yellow-100 text-yellow-700'
+                        }`}
+                      >
+                        {app.status}
+                      </span>
+                    </div>
+
+                    <div className="space-y-2 mb-4">
+                      {app.mentorOnLeave && (
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 mb-3">
+                          <p className="text-orange-700 text-sm font-medium">
+                            ⚠️ Mentor is on leave - Application forwarded to advisor
+                          </p>
+                        </div>
+                      )}
+                      {app.advisorOnLeave && (
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 mb-3">
+                          <p className="text-orange-700 text-sm font-medium">
+                            ⚠️ Advisor is on leave - Application forwarded to AHOD
+                          </p>
+                        </div>
+                      )}
+                      {app.ahodOnLeave && (
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 mb-3">
+                          <p className="text-orange-700 text-sm font-medium">
+                            ⚠️ AHOD is on leave - Application forwarded to HOD
+                          </p>
+                        </div>
+                      )}
+                      <div className="flex text-sm">
+                        <span className="font-medium text-slate-700 w-24">
+                          Period:
+                        </span>
+                        <span className="text-slate-600">
+                          {new Date(app.from_date).toLocaleDateString()} -{' '}
+                          {new Date(app.to_date).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <div className="flex text-sm">
+                        <span className="font-medium text-slate-700 w-24">
+                          Reason:
+                        </span>
+                        <span className="text-slate-600">{app.reason}</span>
+                      </div>
+                      <div className="flex text-sm">
+                        <span className="font-medium text-slate-700 w-24">
+                          Applied:
+                        </span>
+                        <span className="text-slate-600">
+                          {new Date(app.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    {app.approvals.length > 0 && (
+                      <div className="mb-4 p-4 bg-slate-50 rounded-lg">
+                        <h4 className="text-sm font-semibold text-slate-700 mb-2">
+                          Approval History
+                        </h4>
+                        {app.approvals.map((approval) => (
+                          <div
+                            key={approval.id}
+                            className="flex items-center text-sm mb-1"
+                          >
+                            {approval.action === 'approved' ? (
+                              <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
+                            ) : (
+                              <XCircle className="h-4 w-4 text-red-500 mr-2" />
+                            )}
+                            <span className="capitalize text-slate-700">
+                              {approval.approver_role}
+                            </span>
+                            <span className="text-slate-500 ml-2">
+                              {approval.action}
+                            </span>
+                            {approval.remarks && (
+                              <span className="text-slate-500 ml-2">
+                                - {approval.remarks}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Debug info for troubleshooting */}
+                    {!canApprove && app.status === 'pending' && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-700">
+                        <strong>Debug:</strong> Cannot approve because:
+                        {app.current_approver_level !== 'mentor' && app.current_approver_level !== 'advisor' && 
+                          ` current level is ${app.current_approver_level}`}
+                        {app.current_approver_level === 'mentor' && !isMentor && 
+                          ` you are not the mentor (mentor_id: ${app.student.mentor_id?.slice(0,8)})`}
+                        {app.current_approver_level === 'advisor' && !isAdvisor && 
+                          ` you are not the advisor (advisor_id: ${app.student.advisor_id?.slice(0,8)})`}
+                        {onLeave && ` you are on leave`}
+                      </div>
+                    )}
+
+                    {canApprove && (
+                      <div className="space-y-3">
+                        {onLeave && (
+                          <div className="bg-orange-50 border border-orange-300 rounded-lg p-3 text-center">
+                            <p className="text-orange-700 text-sm font-medium">
+                              You cannot approve/reject applications while on leave
+                            </p>
+                          </div>
+                        )}
+                        <div className="flex space-x-4">
+                          <button
+                            onClick={() => {
+                              const remarks = prompt('Enter remarks (optional):');
+                              handleApproval(app.id, 'approved', remarks || '');
+                            }}
+                            disabled={onLeave}
+                            className={`flex-1 py-2 px-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium ${
+                              onLeave ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => {
+                              const remarks = prompt('Enter reason for rejection:');
+                              if (remarks) {
+                                handleApproval(app.id, 'rejected', remarks);
+                              }
+                            }}
+                            disabled={onLeave}
+                            className={`flex-1 py-2 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium ${
+                              onLeave ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
+      </div>
+    </DashboardLayout>
+  );
+}

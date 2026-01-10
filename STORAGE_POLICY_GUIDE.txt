@@ -1,0 +1,105 @@
+STEP-BY-STEP GUIDE: Adding Storage Policies for od-proofs
+
+=============================================================================
+POLICY 1: Allow Students to Upload (INSERT)
+=============================================================================
+
+1. Click "New policy" under "od-proofs" bucket
+2. Choose "For full customization" or "Custom policy"
+3. Fill in:
+
+   Policy name: Students can upload own proofs
+   
+   Policy definition:
+   - Check: INSERT
+   
+   Target roles: authenticated
+   
+   USING expression (leave blank for INSERT)
+   
+   WITH CHECK expression:
+   (bucket_id = 'od-proofs' AND (storage.foldername(name))[1] = auth.uid()::text)
+
+4. Click "Review" then "Save policy"
+
+=============================================================================
+POLICY 2: Allow Anyone to View (SELECT)
+=============================================================================
+
+1. Click "New policy" again
+2. Choose "Custom policy"
+3. Fill in:
+
+   Policy name: Anyone can view proofs
+   
+   Policy definition:
+   - Check: SELECT
+   
+   Target roles: public
+   
+   USING expression:
+   (bucket_id = 'od-proofs')
+   
+   WITH CHECK expression (leave blank for SELECT)
+
+4. Click "Review" then "Save policy"
+
+=============================================================================
+POLICY 3: Allow Students to Update (UPDATE)
+=============================================================================
+
+1. Click "New policy" again
+2. Choose "Custom policy"
+3. Fill in:
+
+   Policy name: Students can update own proofs
+   
+   Policy definition:
+   - Check: UPDATE
+   
+   Target roles: authenticated
+   
+   USING expression:
+   (bucket_id = 'od-proofs' AND (storage.foldername(name))[1] = auth.uid()::text)
+   
+   WITH CHECK expression:
+   (bucket_id = 'od-proofs' AND (storage.foldername(name))[1] = auth.uid()::text)
+
+4. Click "Review" then "Save policy"
+
+=============================================================================
+POLICY 4: Allow Students to Delete (DELETE)
+=============================================================================
+
+1. Click "New policy" again
+2. Choose "Custom policy"
+3. Fill in:
+
+   Policy name: Students can delete own proofs
+   
+   Policy definition:
+   - Check: DELETE
+   
+   Target roles: authenticated
+   
+   USING expression:
+   (bucket_id = 'od-proofs' AND (storage.foldername(name))[1] = auth.uid()::text)
+   
+   WITH CHECK expression (leave blank for DELETE)
+
+4. Click "Review" then "Save policy"
+
+=============================================================================
+
+ALTERNATIVE QUICK FIX (If above is too complex):
+Just add ONE simple policy that allows everything:
+
+Policy name: Allow all operations
+Policy definition: Check ALL (SELECT, INSERT, UPDATE, DELETE)
+Target roles: authenticated
+USING expression: (bucket_id = 'od-proofs')
+WITH CHECK expression: (bucket_id = 'od-proofs')
+
+This is less secure but will work for testing.
+
+=============================================================================

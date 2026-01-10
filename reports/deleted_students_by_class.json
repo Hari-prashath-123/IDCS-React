@@ -1,0 +1,533 @@
+{
+  "deleted_count": 44,
+  "details": [
+    {
+      "id": "ce730200-0fc1-4eed-a424-d98edef35cd1",
+      "email": "mithravasan.ad23@krct.ac.in",
+      "name": "MITHRAVASAN VBH",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "5b0ec254-5e93-4cd3-9325-5cf42b29547c",
+      "email": "mohamedadhilameen.ad23@krct.ac.in",
+      "name": "MOHAMED ADHIL AMEEN R",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "b1e358ff-620e-420f-bc86-eefc00ca57e9",
+      "email": "mohamedfirdous.ad23@krct.ac.in",
+      "name": "MOHAMED FIRDOUS S",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "484c3344-a02e-4964-9975-c3e9d438635a",
+      "email": "mohamedibrahim.ad23@krct.ac.in",
+      "name": "MOHAMED IBRAHIM F",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "76295009-34da-4e18-88ef-46310d62fae5",
+      "email": "mohammedraasith.ad23@krct.ac.in",
+      "name": "MOHAMMED RAASITH H",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "672cb6c3-3e97-4701-a4c5-519b6a256457",
+      "email": "mohanavel.ad23@krct.ac.in",
+      "name": "MOHANAVEL K",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "5a13ca17-39d2-4ab1-a773-0d1548dc257d",
+      "email": "mukesh.ad23@krct.ac.in",
+      "name": "MUKESH M",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "5185fc1a-cbb4-4803-aaa9-e585dcd86509",
+      "email": "mukilan.ad23@krct.ac.in",
+      "name": "MUKILAN K",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "5fc1f14d-c132-465e-a249-d6ac79c9bbd9",
+      "email": "muthumeena.ad23@krct.ac.in",
+      "name": "MUTHU MEENA K",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "006742ce-9d11-4466-a36e-528051d767b5",
+      "email": "nametha.ad23@krct.ac.in",
+      "name": "NAMETHA K",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "cfe3e93f-5bb3-43df-ae8d-2ae6c2cad2b9",
+      "email": "nandhini.ad23@krct.ac.in",
+      "name": "NANDHINI K.",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "c81b8c6b-1239-4541-b539-26615b88c324",
+      "email": "nekashri.ad23@krct.ac.in",
+      "name": "NEKASHRI S",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "3535474e-1bfc-4a21-a316-aca1596296f2",
+      "email": "nithyapriya.ad23@krct.ac.in",
+      "name": "NITHYAPRIYA S",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "2a8c070c-1fbf-47cb-baf2-5e7dbb1618a1",
+      "email": "omprakash.ad23@krct.ac.in",
+      "name": "OM PRAKASH M",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "32845de3-f60b-44b2-be72-2db2c0ee8106",
+      "email": "padmapriya.ad23@krct.ac.in",
+      "name": "PADMA PRIYA S",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "a17e4586-067b-4dcd-81f2-a42d60130ea1",
+      "email": "pradeep.ad23@krct.ac.in",
+      "name": "PRADEEP M",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "15b6e5bf-59af-4169-8cc6-d11218a3d228",
+      "email": "prasanna.ad23@krct.ac.in",
+      "name": "PRASANNA N",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "704d290c-ecab-4032-858a-41cf912252f3",
+      "email": "praveena.ad23@krct.ac.in",
+      "name": "PRAVEENA V",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "288126a7-2ad3-4863-bb9d-2031dd841fff",
+      "email": "pravina.ad23@krct.ac.in",
+      "name": "PRAVINA M M",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "95e95fc5-a85b-4e40-8401-65dbe0d53615",
+      "email": "priyadharshini.ad23@krct.ac.in",
+      "name": "PRIYADHARSHINI J",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "effa3fe5-55e8-4d9b-94d7-77420f4707dc",
+      "email": "raghavi.ad23@krct.ac.in",
+      "name": "RAGHAVI S A",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "b5cef2aa-276d-4e7d-979e-148268cb310c",
+      "email": "ravin.ad23@krct.ac.in",
+      "name": "RAVIN S",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "c7c9a16d-532e-4d60-9f8c-7ccee1f981a7",
+      "email": "renusri.ad23@krct.ac.in",
+      "name": "RENUSRI P",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "3405c548-7780-4958-88e6-836206a6f8c6",
+      "email": "rexcia.ad23@krct.ac.in",
+      "name": "REXCIA A",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "b217e05a-5b96-48a3-a6c4-fec24d5066a1",
+      "email": "rishiyanth.ad23@krct.ac.in",
+      "name": "RISHIYANTH S",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "b8d09258-3cf9-4926-b53b-7da3d0859fd2",
+      "email": "roshith.ad23@krct.ac.in",
+      "name": "ROSHITH S",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "06dbaadb-7c45-4ccd-b1b8-dc889f2dc3a8",
+      "email": "rukshita.ad23@krct.ac.in",
+      "name": "RUKSHITA G",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "a3f61374-2a05-4da5-927d-9524063d7986",
+      "email": "sahana.ad23@krct.ac.in",
+      "name": "SAHANA P",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "c63c4793-e861-42de-8586-8f293ee52dce",
+      "email": "sainithickroshaan.ad23@krct.ac.in",
+      "name": "SAI NITHICK ROSHAAN S",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "47fea7a2-d6d4-4eb2-987c-85c614dfc6dd",
+      "email": "sakthivishal.ad23@krct.ac.in",
+      "name": "SAKTHIVISHAL C",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "b0ba79ab-4db5-4c5c-ae73-55417753725f",
+      "email": "santhiya.ad23@krct.ac.in",
+      "name": "SANTHIYA S",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "42ff89a2-d267-4b66-a0ef-efd4ba1c3ca7",
+      "email": "santhosh.ad23@krct.ac.in",
+      "name": "SANTHOSH S",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "0396003f-ce8a-4a6a-b029-1eb84373e959",
+      "email": "sathiyajithaashim.ad23@krct.ac.in",
+      "name": "SATHIYAJITH AASHIM GOVINDARAJ",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "d2924db1-9bfa-478d-8a2e-fd83b835d874",
+      "email": "sathiyaseelan.ad23@krct.ac.in",
+      "name": "SATHIYASEELAN A",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "823d4a77-db2e-4a6c-a9ca-f7c83f1b27e8",
+      "email": "shahulhameed.ad23@krct.ac.in",
+      "name": "SHAHUL HAMEED M",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "21705e85-61e2-4941-8ad0-c795116832fc",
+      "email": "shamithasri.ad23@krct.ac.in",
+      "name": "SHAMITHA SRI R",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "78fc887f-91cd-421c-a426-a6520a3e1eb1",
+      "email": "sheikhmohammed.ad23@krct.ac.in",
+      "name": "SHEIKH MOHAMMED M",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "347b7a46-850f-4b64-aacd-4e837ed6bdd6",
+      "email": "shekkinahhephzibah.ad23@krct.ac.in",
+      "name": "SHEKKINAH HEPHZIBAH M",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "30ec2134-7d8c-4414-b09a-a10af17c7623",
+      "email": "sofiya.ad23@krct.ac.in",
+      "name": "SOFIYA C",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "2759a92b-cd17-4542-970c-251ecdcd053a",
+      "email": "sriharithavarsiny.ad23@krct.ac.in",
+      "name": "SRI HARITHA VARSINY R",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "5918be8e-a155-47a5-a015-aa75d94b1c5b",
+      "email": "manasashree.ad23@krct.ac.in",
+      "name": "MANASA SHREE RM",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "6e7d8486-26a7-4fef-a508-99c5741595c3",
+      "email": "nethaji.ad23@krct.ac.in",
+      "name": "NETHAJI J",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "d0b0c53e-29c2-4bc3-8f1c-da0a9aab6f1d",
+      "email": "sevenhillsvasa.ad23@krct.ac.in",
+      "name": "SEVENHILLSVASA S",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    },
+    {
+      "id": "55276ff3-13ac-4d9e-a14c-fd438d60f860",
+      "email": "sibichakkaravarthi.ad23@krct.ac.in",
+      "name": "SIBI CHAKKARAVARTHI S",
+      "deleted": [
+        "students",
+        "staff",
+        "profiles",
+        "auth"
+      ],
+      "errors": []
+    }
+  ]
+}

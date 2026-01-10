@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom cursor for the entire site - applied to ALL elements */
+* {
+  cursor: url('/cursor_blue.ico'), auto !important;
+}
+
+/* Ensure all interactive elements use the custom cursor */
+button, a, [role="button"], input, select, textarea,
+input[type="checkbox"], input[type="radio"], input[type="submit"], input[type="button"],
+[tabindex]:not([tabindex="-1"]), [onclick], label, option {
+  cursor: url('/cursor_blue.ico'), pointer !important;
+}
+
+/* Override any default browser cursors */
+input[type="checkbox"]:hover, input[type="radio"]:hover,
+input[type="checkbox"]:focus, input[type="radio"]:focus {
+  cursor: url('/cursor_blue.ico'), pointer !important;
+}

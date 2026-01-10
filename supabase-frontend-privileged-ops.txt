@@ -1,0 +1,64 @@
+Summary: frontend files that perform DB writes, storage uploads/removals, or RPCs.
+
+High risk (must review/move server-side or enforce strict RLS + auth checks):
+- src/pages/student/CertificateUpload.tsx
+  - Operations: storage.upload, storage.remove, storage.getPublicUrl, .from('certificates').insert/update/delete, .from('od_applications').update
+  - Risk: High — direct uploads + inserts; public URLs used; deletion/updating of other application rows.
+
+- src/pages/student/ApplicationPage.tsx
+  - Operations: storage.upload, storage.getPublicUrl, .from(tableName).insert, .from(tableName).update
+  - Risk: High — user-submitted applications with attachments; writes to application tables.
+
+- src/pages/student/MyElectives.tsx
+  - Operations: rpc('lock_student_elective'), .from('student_electives').update/insert
+  - Risk: High — seat-locking RPC and inserts can affect inventory; RPC is SECURITY DEFINER on DB side.
+
+- src/pages/staff/StaffTimetable.tsx
+  - Operations: .from('timetables').upsert, .from('staff_timetables').update, .update({staff_id})
+  - Risk: High — bulk upserts and staff assignments (admin-level changes).
+
+- src/pages/staff/StaffDashboard.tsx
+  - Operations: .from('staff').update(on_leave), .from(application tables).select/update
+  - Risk: High — staff status updates and application changes.
+
+- src/pages/staff/StaffLeaveApprovalPage.tsx
+  - Operations: .from('staff_leave_approvals').insert
+  - Risk: High — approval inserts that change application state.
+
+- src/pages/staff/StaffLeaveApplicationPage.tsx
+  - Operations: .from('staff_leave_applications').insert
+  - Risk: Medium/High — creates staff leave rows; ensure RLS and validation.
+
+- src/pages/student/StudentFeedbackForm.tsx
+  - Operations: .from('feedback_responses').insert, .from('feedback_forms').update
+  - Risk: Medium — writes feedback and updates form counters; check duplication and ownership checks.
+
+- src/pages/student/CertificateUpload.tsx (already above)
+
+- src/pages/student/Attendance.tsx
+  - Operations: .from('daily_attendance').select/insert?, .from('period_attendance')
+  - Risk: Medium — attendance writes may be sensitive; verify authorization.
+
+- src/pages/* (various) calling .rpc(...)
+  - Notable RPCs called from client: rpc_resolve_email_by_staff, get_staff_leave_attendance, apply_replacement, approve_bonafide_application, move_student_elective
+  - Risk: High for RPCs that are SECURITY DEFINER or modify other rows — must have explicit auth checks or be called only via server.
+
+Additional notes / moderate-risk files (reads + occasional writes):
+- Many pages read from profiles, students, timetables, subjects, notices (ok if SELECT policies are strict). Files include StudentDashboard.tsx, MySubjects.tsx, StaffDashboard.tsx, HOD pages, principal pages, admin pages.
+
+Critical DB-side issues found to triage alongside these files:
+- exec_sql / execute_sql RPCs exist in scripts and should NOT be callable by clients — remove or restrict.
+- Several SECURITY DEFINER functions exist (elective seat locking, approvals). Each must include explicit authorization checks and limited EXECUTE grants.
+- sql/2025-11-15_profiles_students_rls.sql currently allows SELECT (true) for profiles/students — change to scoped checks.
+
+Suggested immediate actions per file (prioritized):
+1) For each High risk file (listed above):
+   - Confirm corresponding table RLS denies unauthorized writes; if not, move the write to a server endpoint.
+   - Replace any use of storage.getPublicUrl with server-provided signed URLs (`createSignedUrl`) or server proxy.
+   - For RPCs called from client that perform privileged work, either add strict auth checks inside the function or wrap call in a server endpoint.
+
+2) Remove/disable any RPC that executes arbitrary SQL from clients (`exec_sql`, `execute_sql`).
+
+3) Add tests that simulate an anon/regular user and verify RLS prevents unauthorized actions on these flows.
+
+Saved file: supabase-frontend-privileged-ops.txt

@@ -1,0 +1,405 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block root %}
+<style>
+/* Card header style consistent with other pages */
+.card-header {
+    background: #1976d2;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.25rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+}
+
+.card-header .header-title {
+    margin: 0;
+}
+
+.card-header .home-icon i {
+    font-size: 1.5rem;
+    color: #fff;
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+.card-header .home-icon:hover i {
+    transform: scale(1.2);
+}
+
+/* Card style */
+.card {
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(25, 118, 210, 0.1);
+    border: none;
+}
+
+/* Input group */
+.input-group-addon {
+    background: #2196f3 !important;
+    color: #fff !important;
+    font-weight: 600;
+    border: none !important;
+    border-radius: 0.25rem 0 0 0.25rem !important;
+    padding: 10px 12px;
+}
+
+.input-group .form-control[disabled],
+.input-group .form-control:disabled {
+    background: #e3f2fd !important;
+    color: #333 !important;
+    border: none !important;
+    font-weight: 600;
+    border-radius: 0 0.25rem 0.25rem 0 !important;
+}
+
+/* Form controls */
+.form-control, textarea {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+textarea {
+    resize: vertical;
+}
+
+/* File upload */
+input[type="file"] { display: none; }
+.custom-file-upload {
+    display: inline-block;
+    padding: 8px 16px;
+    cursor: pointer;
+    background: #1976d2;
+    color: #fff;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+.custom-file-upload:hover { background: #1565c0; }
+
+/* Buttons */
+.btn-submit {
+    background: #4caf50;
+    color: #fff;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: 0.3s;
+}
+.btn-submit:hover { background: #388e3c; }
+
+.btn-reset {
+    background: #fff;
+    border: 2px solid #f44336;
+    color: #f44336;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: 0.3s;
+}
+.btn-reset:hover { background: #f44336; color: #fff; }
+
+/* Responsive */
+@media (max-width: 767px) {
+    .btn-group .btn {
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    /* Keep header row layout on mobile */
+    .card-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0;
+    }
+}
+</style>
+
+<div class="animated fadeIn mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+            <div class="card">
+                <!-- Card header with title and home icon -->
+                <div class="card-header" style="border-radius: 8px 8px 0px 0px;">
+                    <span class="header-title">Bonafide Application</span>
+                    <a href="{% url 'dash' %}" class="home-icon">
+                        <i class="fa fa-home"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Mentors/Advisors/HOD -->
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <div class="input-group">
+                                    <div class="input-group-addon">Mentor</div>
+                                    <input type="text" class="form-control" value="Mr/Mrs. {{ duser.mentor.name }}" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <div class="input-group">
+                                    <div class="input-group-addon">Advisor</div>
+                                    <input type="text" class="form-control" value="Mr/Mrs. {{ duser.advisor.name }}" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <div class="input-group">
+                                    <div class="input-group-addon">HOD</div>
+                                    <input type="text" class="form-control" value="Mr/Mrs. {{ duser.hod.name }}" disabled>
+                                </div>
+                            </div>
+                           
+                        </div>
+
+                        <!-- Purpose -->
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="purpose">Purpose (Subject)</label>
+                                <select class="form-control" id="purpose" name="sub" required>
+                                    <option value="">Select Purpose</option>
+                                    <option>Bank Loan</option>
+                                    <option>Fee Structure</option>
+                                    <option>Scholarship</option>
+                                    <option>Passport</option>
+                                    <option>Bus Pass</option>
+                                    <option>Train Pass</option>
+                                    <option>Bonafide</option>
+                                    <option>Other</option>
+                                </select>
+                                <input type="text" class="form-control mt-2" id="other_purpose" name="other_purpose" placeholder="Specify other purpose" style="display:none;">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="fathers_name">Father’s Name</label>
+                                <input type="text" class="form-control" id="fathers_name" name="fathers_name" required>
+                            </div>
+                        </div>
+
+                        <!-- Branch/Year/Community -->
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="branch">Branch</label>
+                                <select class="form-control" id="branch" name="branch" required>
+                                    <option value="">Select Branch</option>
+                                    <option>AI & DS</option>
+                                    <option>AI ML</option>
+                                    <option>CSE</option>
+                                    <option>IT</option>
+                                    <option>ECE</option>
+                                    <option>EEE</option>
+                                    <option>MECH</option>
+                                    <option>CIVIL</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="year">Year</label>
+                                <select class="form-control" id="year" name="year" required>
+                                    <option value="">Select Year</option>
+                                    <option>I</option>
+                                    <option>II</option>
+                                    <option>III</option>
+                                    <option>IV</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="community">Community</label>
+                                <select class="form-control" id="community" name="community" required>
+                                    <option value="">Select Community</option>
+                                    <option>OC</option>
+                                    <option>BC</option>
+                                    <option>MBC</option>
+                                    <option>SC</option>
+                                    <option>ST</option>
+                                    <option>Others</option>
+                                </select>
+                                <input type="text" class="form-control mt-2" id="other_community" name="other_community" placeholder="Specify other community" style="display:none;">
+                            </div>
+                        </div>
+
+                        <!-- Scholar / Hostel -->
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Day Scholar / Hostel</label><br>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="scholar_type" id="day_scholar" value="Day Scholar" checked>
+                                    <label class="form-check-label" for="day_scholar">Day Scholar</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="scholar_type" id="hostel" value="Hostel">
+                                    <label class="form-check-label" for="hostel">Hostel</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bus Options -->
+                        <div class="form-row" id="bus_options" style="display:none;">
+                            <div class="form-group col-md-6">
+                                <label>College Bus?</label><br>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="college_bus" id="bus_yes" value="Yes">
+                                    <label class="form-check-label" for="bus_yes">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="college_bus" id="bus_no" value="No">
+                                    <label class="form-check-label" for="bus_no">No</label>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6" id="boarding_point_group" style="display:none;">
+                                <label for="boarding_point">Boarding Point</label>
+                                <input type="text" class="form-control" id="boarding_point" name="boarding_point">
+                            </div>
+                        </div>
+
+                        <!-- College / Out Bus -->
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>College Bus / Out Bus</label><br>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="bus_type" id="college_bus_type" value="College Bus">
+                                    <label class="form-check-label" for="college_bus_type">College Bus</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="bus_type" id="out_bus_type" value="Out Bus">
+                                    <label class="form-check-label" for="out_bus_type">Out Bus</label>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="bus_fare">Bus Fare</label>
+                                <input type="number" class="form-control" id="bus_fare" name="bus_fare" min="0">
+                            </div>
+                        </div>
+
+                        <!-- First Graduate / Gov-Management -->
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>First Graduate</label><br>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="first_graduate" id="fg_yes" value="Yes">
+                                    <label class="form-check-label" for="fg_yes">Yes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="first_graduate" id="fg_no" value="No">
+                                    <label class="form-check-label" for="fg_no">No</label>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>Gov / Management</label><br>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="gov_mgmt" id="gov" value="Gov">
+                                    <label class="form-check-label" for="gov">Gov</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="gov_mgmt" id="management" value="Management">
+                                    <label class="form-check-label" for="management">Management</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Date -->
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label for="date">Date</label>
+                                <input type="date" class="form-control" id="date" name="date" required>
+                            </div>
+                        </div>
+
+                        <!-- Proof -->
+                        <div class="form-group">
+                            <label for="proof">Proof (optional)</label><br>
+                            <label class="custom-file-upload">
+                                <input type="file" id="proof" name="proof" accept="image/*,application/pdf">
+                                Choose File
+                            </label>
+                            <span id="file-name" style="margin-left:10px; font-weight:500;">No file chosen</span>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="btn-group mt-3" style="width:100%;">
+                            <button type="submit" class="btn btn-submit mr-2 col-md-8">Submit</button>
+                            <button type="reset" class="btn btn-reset col-md-4">Reset</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show selected file name
+    const fileInput = document.getElementById('proof');
+    const fileName = document.getElementById('file-name');
+
+    fileInput.addEventListener('change', () => {
+        fileName.textContent = fileInput.files[0]?.name || 'No file chosen';
+    });
+
+    // Purpose "Other" toggle
+    const purposeSelect = document.getElementById('purpose');
+    const otherPurposeInput = document.getElementById('other_purpose');
+    function toggleOtherPurpose() {
+        if(purposeSelect.value === 'Other') {
+            otherPurposeInput.style.display = '';
+            otherPurposeInput.required = true;
+        } else {
+            otherPurposeInput.style.display = 'none';
+            otherPurposeInput.required = false;
+            otherPurposeInput.value = '';
+        }
+    }
+    purposeSelect.addEventListener('change', toggleOtherPurpose);
+    toggleOtherPurpose();
+
+    // Scholar type logic
+    const dayScholarRadio = document.getElementById('day_scholar');
+    const hostelRadio = document.getElementById('hostel');
+    const busTypeGroup = document.querySelector('[for="college_bus_type"]').closest('.form-row');
+    const busFareGroup = document.getElementById('bus_fare').closest('.form-group');
+    const busTypeRadios = document.getElementsByName('bus_type');
+
+    function updateBusFields() {
+        if (hostelRadio.checked) {
+            busTypeGroup.style.display = 'none';
+            busFareGroup.style.display = 'none';
+        } else {
+            busTypeGroup.style.display = '';
+            // Check bus type selection
+            let outBusSelected = false;
+            for (const radio of busTypeRadios) {
+                if (radio.checked && radio.value === 'Out Bus') {
+                    outBusSelected = true;
+                }
+            }
+            busFareGroup.style.display = outBusSelected ? 'none' : '';
+        }
+    }
+    dayScholarRadio.addEventListener('change', updateBusFields);
+    hostelRadio.addEventListener('change', updateBusFields);
+    for (const radio of busTypeRadios) {
+        radio.addEventListener('change', updateBusFields);
+    }
+    updateBusFields();
+
+    // First Graduate logic
+    const fgYes = document.getElementById('fg_yes');
+    const fgNo = document.getElementById('fg_no');
+    const govMgmtGroup = document.getElementById('gov').closest('.form-group');
+
+    function updateGovMgmtField() {
+        if (fgNo.checked) {
+            govMgmtGroup.style.display = 'none';
+        } else {
+            govMgmtGroup.style.display = '';
+        }
+    }
+    fgYes.addEventListener('change', updateGovMgmtField);
+    fgNo.addEventListener('change', updateGovMgmtField);
+    updateGovMgmtField();
+</script>
+{% endblock %}

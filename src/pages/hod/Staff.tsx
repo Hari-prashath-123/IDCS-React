@@ -1,0 +1,304 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { BookOpen, Users, ShieldCheck, ShieldX, User } from 'lucide-react';
+import DashboardLayout from '../../components/DashboardLayout';
+import Loader from '../../components/Loader';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
+
+interface StaffRow {
+  id: string;
+  name: string;
+  email: string;
+  role: string; // profile.role
+  staff_role: string | null; // staff table role (mentor/advisor/lecturer/hod/ahod)
+  year: number | null;
+  section: string | null;
+}
+
+export default function HODStaffPage() {
+  const { profile } = useAuth();
+  const navigate = useNavigate();
+  const [list, setList] = useState<StaffRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [q, setQ] = useState('');
+  const [deptAdminId, setDeptAdminId] = useState<string | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!profile?.department) return;
+    const load = async () => {
+      setLoading(true);
+      try {
+        // Parallel fetch profiles, staff data, and department admin
+        const [profilesResult, deptAdminResult] = await Promise.all([
+          supabase
+            .from('profiles')
+            .select('id, name, email, role, department')
+            .ilike('department', `${profile.department}%`)
+            .in('role', ['staff','ahod','hod']),
+          supabase.from('department_admins').select('staff_id').eq('department', profile.department).maybeSingle()
+        ]);
+
+        const profiles = profilesResult.data || [];
+        const ids = profiles.map((p: any) => p.id);
+        
+        let staffRows: any[] = [];
+        if (ids.length) {
+          const { data: sRows } = await supabase
+            .from('staff')
+            .select('id, staff_role, year, section')
+            .in('id', ids);
+          staffRows = sRows || [];
+        }
+        
+        const byId = new Map(staffRows.map((s) => [s.id, s]));
+        const combined: StaffRow[] = profiles.map((p: any) => {
+          const s = byId.get(p.id);
+          return {
+            id: p.id,
+            name: p.name,
+            email: p.email,
+            role: p.role,
+            staff_role: s?.staff_role || p.role || 'staff',
+            year: s?.year ?? null,
+            section: s?.section ?? null,
+          };
+        });
+        // Sort by name
+        combined.sort((a, b) => a.name.localeCompare(b.name));
+        setList(combined);
+        setDeptAdminId(deptAdminResult.data?.staff_id || null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [profile?.department]);
+
+  const filtered = list.filter((r) => {
+    const t = (r.name + ' ' + r.email + ' ' + r.staff_role).toLowerCase();
+    return t.includes(q.toLowerCase());
+  });
+
+  return (
+    <DashboardLayout>
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Staff</h1>
+            <p className="text-sm text-slate-600">All staff in {profile?.department}</p>
+          </div>
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search by name, email, role..."
+            className="w-full sm:w-72 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {loading ? (
+          <Loader message="Loading staff..." />
+        ) : (
+          <>
+            {/* Desktop/tablet table */}
+            <div className="hidden sm:block bg-white rounded-lg shadow border border-slate-200 overflow-x-auto">
+              <table className="min-w-[720px] sm:min-w-full table-auto text-sm">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-600">
+                    <th className="px-4 py-2 text-left">Name</th>
+                    <th className="px-4 py-2 text-left">Email</th>
+                    <th className="px-4 py-2 text-left">Role</th>
+                    <th className="px-4 py-2 text-left">Advisor Class</th>
+                    <th className="px-4 py-2 text-left">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200">
+                  {filtered.map((r) => {
+                    const isAdvisor = r.staff_role === 'advisor' && r.year && r.section;
+                    return (
+                      <tr key={r.id} className="hover:bg-slate-50">
+                        <td className="px-4 py-2">{r.name}</td>
+                        <td className="px-4 py-2">{r.email}</td>
+                        <td className="px-4 py-2 capitalize">{r.staff_role || r.role}</td>
+                        <td className="px-4 py-2">{isAdvisor ? `Y${r.year}-${r.section}` : '—'}</td>
+                        <td className="px-4 py-2">
+                          <div className="relative inline-block text-left">
+                            <button
+                              onClick={() => setOpenMenuId(openMenuId === r.id ? null : r.id)}
+                              className="p-2 rounded hover:bg-slate-100"
+                              aria-haspopup="true"
+                              aria-expanded={openMenuId === r.id}
+                              title="Actions"
+                            >
+                              <svg className="w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="5" cy="12" r="2" />
+                                <circle cx="12" cy="12" r="2" />
+                                <circle cx="19" cy="12" r="2" />
+                              </svg>
+                            </button>
+
+                            {openMenuId === r.id && (
+                              <div className="origin-top-right absolute right-0 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10 flex flex-col">
+                                <div className="py-1 flex flex-col">
+                                  <button
+                                    onClick={() => navigate(`/hod/staff/${r.id}/profile`)}
+                                    className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                  >
+                                    <span className="inline-flex items-center gap-2"><User className="w-4 h-4" />Profile</span>
+                                  </button>
+                                  <button
+                                    onClick={() => navigate(`/hod/staff/${r.id}/timetable`)}
+                                    className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                  >
+                                    <span className="inline-flex items-center gap-2"><BookOpen className="w-4 h-4" />Timetable</span>
+                                  </button>
+                                  <button
+                                    onClick={() => navigate(`/hod/staff/${r.id}/mentees`)}
+                                    className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                  >
+                                    <span className="inline-flex items-center gap-2"><Users className="w-4 h-4" />Mentees</span>
+                                  </button>
+                                  {profile?.role === 'hod' && profile?.department && (
+                                    <button
+                                      onClick={async () => {
+                                        try {
+                                          if (deptAdminId === r.id) {
+                                            const { error } = await supabase.rpc('remove_department_admin', {
+                                              target_department: profile.department
+                                            });
+                                            if (error) throw error;
+                                            setDeptAdminId(null);
+                                            alert('Department admin removed');
+                                            window.location.reload();
+                                          } else {
+                                            const { error } = await supabase.rpc('assign_department_admin', {
+                                              target_staff_id: r.id,
+                                              target_department: profile.department
+                                            });
+                                            if (error) throw error;
+                                            setDeptAdminId(r.id);
+                                            alert('Department admin assigned');
+                                            window.location.reload();
+                                          }
+                                        } catch (err: any) {
+                                          console.error('Failed to update department admin', err);
+                                          alert('Failed to update department admin: ' + (err?.message || String(err)));
+                                        }
+                                      }}
+                                      className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                                    >
+                                      <span className="inline-flex items-center gap-2">{deptAdminId === r.id ? <ShieldX className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />} Department Admin</span>
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile card list */}
+            <div className="sm:hidden space-y-3">
+              {filtered.map((r) => {
+                const isAdvisor = r.staff_role === 'advisor' && r.year && r.section;
+                return (
+                  <div key={r.id} className="bg-white rounded-lg shadow border border-slate-200 p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold text-slate-900 truncate">{r.name}</div>
+                        <div className="text-xs text-slate-600 truncate">{r.email}</div>
+                        <div className="mt-1 text-[11px] text-slate-600 flex flex-wrap gap-x-2 gap-y-0.5">
+                          <span className="capitalize">{r.staff_role || r.role}</span>
+                          <span>•</span>
+                          <span>Advisor: {isAdvisor ? `Y${r.year}-${r.section}` : '—'}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <button
+                          onClick={() => navigate(`/hod/staff/${r.id}/profile`)}
+                          className="p-2 rounded bg-indigo-600 text-white hover:bg-indigo-700"
+                          title="View Profile"
+                        >
+                          <User className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => navigate(`/hod/staff/${r.id}/timetable`)}
+                          className="p-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+                          title="View Timetable"
+                        >
+                          <BookOpen className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => navigate(`/hod/staff/${r.id}/mentees`)}
+                          className="p-2 rounded bg-slate-700 text-white hover:bg-slate-800"
+                          title="View Mentees"
+                        >
+                          <Users className="w-4 h-4" />
+                        </button>
+                        {/* Department admin toggle for mobile (visible to HOD only) */}
+                        {profile?.role === 'hod' && profile?.department && (
+                          <button
+                            onClick={async () => {
+                              try {
+                                if (deptAdminId === r.id) {
+                                  // Call RPC to remove department admin
+                                  const { error } = await supabase.rpc('remove_department_admin', {
+                                    target_department: profile.department
+                                  });
+                                  if (error) throw error;
+                                  setDeptAdminId(null);
+                                  alert('Department admin removed');
+                                  // Reload staff list to update UI
+                                  window.location.reload();
+                                } else {
+                                  // Call RPC to assign department admin
+                                  const { error } = await supabase.rpc('assign_department_admin', {
+                                    target_staff_id: r.id,
+                                    target_department: profile.department
+                                  });
+                                  if (error) throw error;
+                                  setDeptAdminId(r.id);
+                                  alert('Department admin assigned');
+                                  // Reload staff list to update UI
+                                  window.location.reload();
+                                }
+                              } catch (err: any) {
+                                console.error('Failed to update department admin', err);
+                                alert('Failed to update department admin: ' + (err?.message || String(err)));
+                              }
+                            }}
+                            className={`p-2 rounded text-white ${
+                              deptAdminId === r.id
+                                ? 'bg-red-600 hover:bg-red-700'
+                                : 'bg-emerald-600 hover:bg-emerald-700'
+                            }`}
+                            title={deptAdminId === r.id ? 'Remove Department Admin' : 'Assign Department Admin'}
+                          >
+                            {deptAdminId === r.id ? (
+                              <ShieldX className="w-4 h-4" />
+                            ) : (
+                              <ShieldCheck className="w-4 h-4" />
+                            )}
+                            <span className="sr-only">
+                              {deptAdminId === r.id ? 'Remove Department Admin' : 'Assign Department Admin'}
+                            </span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+    </DashboardLayout>
+  );
+}
