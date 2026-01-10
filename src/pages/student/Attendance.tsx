@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { Home, BookOpen, CalendarCheck, CheckCircle, XCircle, Clock, FileText, Plane } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface OverallAttendance {
@@ -74,360 +75,35 @@ export default function Attendance() {
 
   const fetchOverallAttendance = async () => {
     if (!user?.id) return;
-
-    console.log('Calculating overall attendance...');
-
-    // Get all daily attendance
-    const { data: dailyData, error: dailyError } = await supabase
-      .from('daily_attendance')
-      .select('date, status')
-      .eq('student_id', user.id);
-
-    if (dailyError) {
-      console.error('Error fetching daily attendance:', dailyError);
-      return;
+    try {
+      const resp = await api.get('/attendance/overall/');
+      setOverallAttendance(resp.data || null);
+    } catch (e) {
+      console.error('Error fetching overall attendance from API:', e);
     }
-
-    console.log('Daily attendance records:', dailyData);
-
-    // Get all period attendance
-    const { data: periodData, error: periodError } = await supabase
-      .from('period_attendance')
-      .select('date, period, status')
-      .eq('student_id', user.id);
-
-    if (periodError) {
-      console.error('Error fetching period attendance for overall calc:', periodError);
-      return;
-    }
-
-    console.log('Period attendance records:', periodData);
-
-    // Assume 7 periods per day
-    const PERIODS_PER_DAY = 7;
-
-    // Create a map to track attendance for each date and period
-    const attendanceMap = new Map<string, Map<number, string>>();
-
-    // First, populate from daily attendance (all periods for that day)
-    dailyData?.forEach(day => {
-      const dateKey = day.date;
-      if (!attendanceMap.has(dateKey)) {
-        attendanceMap.set(dateKey, new Map());
-      }
-      const dayMap = attendanceMap.get(dateKey)!;
-      
-      // Set all 7 periods to the daily status
-      for (let period = 1; period <= PERIODS_PER_DAY; period++) {
-        dayMap.set(period, day.status);
-      }
-    });
-
-    // Then, override with specific period attendance (manual marking takes precedence)
-    periodData?.forEach(record => {
-      const dateKey = record.date;
-      if (!attendanceMap.has(dateKey)) {
-        attendanceMap.set(dateKey, new Map());
-      }
-      const dayMap = attendanceMap.get(dateKey)!;
-      
-      // Override this specific period
-      dayMap.set(record.period, record.status);
-    });
-
-    console.log('Final attendance map:', attendanceMap);
-
-    // Calculate totals
-    let totalPeriods = 0;
-    let presentCount = 0;
-    let absentCount = 0;
-    let lateCount = 0;
-    let odCount = 0;
-    let leaveCount = 0;
-
-    attendanceMap.forEach((dayMap) => {
-      dayMap.forEach((status) => {
-        totalPeriods++;
-        switch (status) {
-          case 'present':
-            presentCount++;
-            break;
-          case 'absent':
-            absentCount++;
-            break;
-          case 'late':
-            lateCount++;
-            break;
-          case 'od':
-            odCount++;
-            break;
-          case 'leave':
-            leaveCount++;
-            break;
-        }
-      });
-    });
-
-    // Calculate percentage (present + od + late considered as attended)
-    const attended = presentCount + odCount + lateCount;
-    const percentage = totalPeriods > 0 ? (attended / totalPeriods) * 100 : 0;
-
-    console.log('Overall attendance calculation:', {
-      totalPeriods,
-      presentCount,
-      absentCount,
-      lateCount,
-      odCount,
-      leaveCount,
-      percentage
-    });
-
-    const totalDays = dailyData?.length || 0;
-
-    setOverallAttendance({
-      totalDays,
-      present: presentCount,
-      absent: absentCount,
-      late: lateCount,
-      od: odCount,
-      leave: leaveCount,
-      percentage
-    });
   };
 
   const fetchSubjectAttendance = async () => {
     if (!user?.id) return;
 
-    console.log('Fetching subject attendance for student:', user.id);
-
-    // First, get student's elective assignments to map parent subjects to subelectives
-    const { data: electiveAssignments, error: electiveError } = await supabase
-      .from('student_electives')
-      .select(`
-        elective_id,
-        electives (
-          id,
-          sub_name,
-          course_code,
-          parent_subject_id
-        )
-      `)
-      .eq('student_id', user.id);
-
-    if (electiveError) {
-      console.error('Error fetching elective assignments:', electiveError);
+    try {
+      const resp = await api.get('/attendance/subjects/');
+      setSubjectAttendance(resp.data || []);
+    } catch (e) {
+      console.error('Error fetching subject attendance from API:', e);
     }
-
-    console.log('Student elective assignments:', electiveAssignments);
-
-    // Now get parent subject details for each elective
-    const parentSubjectIds = new Set<string>();
-    electiveAssignments?.forEach((assignment: any) => {
-      if (assignment.electives?.parent_subject_id) {
-        parentSubjectIds.add(assignment.electives.parent_subject_id);
-      }
-    });
-
-    // Fetch parent subject info
-    let parentSubjects = new Map<string, { name: string; code: string }>();
-    if (parentSubjectIds.size > 0) {
-      const { data: parentData, error: parentError } = await supabase
-        .from('subjects')
-        .select('id, name, subject_code')
-        .in('id', Array.from(parentSubjectIds));
-
-      if (parentError) {
-        console.error('Error fetching parent subjects:', parentError);
-      }
-
-      parentData?.forEach((subject: any) => {
-        parentSubjects.set(subject.id, {
-          name: subject.name,
-          code: subject.subject_code
-        });
-      });
-    }
-
-    console.log('Parent subjects:', parentSubjects);
-
-    // Create TWO maps:
-    // 1. Map parent_subject_id -> subelective info (for when attendance uses parent subject)
-    // 2. Map elective_id -> subelective info (for when attendance uses elective subject directly)
-    const parentToElectiveMap = new Map<string, { name: string; code: string; parentCode: string; parentName: string }>();
-    const electiveIdMap = new Map<string, { name: string; code: string; parentCode: string; parentName: string }>();
-    
-    electiveAssignments?.forEach((assignment: any) => {
-      const elective = assignment.electives;
-      if (elective) {
-        const parentInfo = elective.parent_subject_id ? parentSubjects.get(elective.parent_subject_id) : undefined;
-        const electiveInfo = {
-          name: elective.sub_name,
-          code: elective.course_code,
-          parentCode: parentInfo?.code || '',
-          parentName: parentInfo?.name || ''
-        };
-        
-        // Map by parent subject ID
-        if (elective.parent_subject_id) {
-          parentToElectiveMap.set(elective.parent_subject_id, electiveInfo);
-        }
-        
-        // Map by elective ID itself
-        if (elective.id) {
-          electiveIdMap.set(elective.id, electiveInfo);
-        }
-      }
-    });
-
-    console.log('Parent to elective map:', parentToElectiveMap);
-    console.log('Elective ID map:', electiveIdMap);
-
-    const { data: attendanceData, error: attendanceError } = await supabase
-      .from('period_attendance')
-      .select(`
-        subject_id,
-        status,
-        subjects (
-          name,
-          subject_code,
-          id
-        )
-      `)
-      .eq('student_id', user.id);
-
-    if (attendanceError) {
-      console.error('Error fetching subject attendance:', attendanceError);
-      console.error('Full error:', JSON.stringify(attendanceError, null, 2));
-      return;
-    }
-
-    console.log('Raw period attendance data:', attendanceData);
-    console.log('Number of attendance records:', attendanceData?.length || 0);
-
-    // Group by subject
-    const subjectMap = new Map<string, SubjectAttendance>();
-
-    attendanceData?.forEach((record: any) => {
-      const subjectId = record.subject_id;
-      console.log('Processing record for subject_id:', subjectId, 'Record:', record);
-      
-      if (!subjectMap.has(subjectId)) {
-        const subjectInfo = record.subjects;
-        let displayName = subjectInfo?.name || 'Unknown';
-        let displayCode = subjectInfo?.subject_code || '';
-        let parentCode: string | undefined = undefined;
-
-        // Check both maps: first if this is directly an elective, then if it's a parent subject
-        let electiveInfo = electiveIdMap.get(subjectId) || parentToElectiveMap.get(subjectId);
-        console.log('Checking subject_id', subjectId, 'in elective maps:', electiveInfo);
-        
-        if (electiveInfo) {
-          // This is an elective, show the subelective name and code with parent info
-          displayName = `${electiveInfo.name} (${electiveInfo.parentName})`;
-          displayCode = electiveInfo.code;
-          parentCode = electiveInfo.parentCode;
-        }
-
-        subjectMap.set(subjectId, {
-          subject_id: subjectId,
-          subject_name: displayName,
-          subject_code: displayCode,
-          parent_code: parentCode,
-          totalClasses: 0,
-          present: 0,
-          absent: 0,
-          late: 0,
-          od: 0,
-          leave: 0,
-          percentage: 0
-        });
-      }
-
-      const subject = subjectMap.get(subjectId)!;
-      subject.totalClasses++;
-
-      switch (record.status) {
-        case 'present':
-          subject.present++;
-          break;
-        case 'absent':
-          subject.absent++;
-          break;
-        case 'late':
-          subject.late++;
-          break;
-        case 'od':
-          subject.od++;
-          break;
-        case 'leave':
-          subject.leave++;
-          break;
-      }
-    });
-
-    console.log('Subject map:', subjectMap);
-
-    // Calculate percentages
-    const subjects = Array.from(subjectMap.values()).map(subject => {
-      const attended = subject.present + subject.od + subject.late;
-      subject.percentage = subject.totalClasses > 0 ? (attended / subject.totalClasses) * 100 : 0;
-      return subject;
-    });
-
-    console.log('Final subject attendance:', subjects);
-    setSubjectAttendance(subjects);
   };
 
   const fetchAbsentRecords = async () => {
     if (!user?.id) return;
 
-    const records: AbsentRecord[] = [];
-
-    // Fetch daily attendance (absent, leave, late, od)
-    const { data: dailyData } = await supabase
-      .from('daily_attendance')
-      .select('date, status')
-      .eq('student_id', user.id)
-      .in('status', ['absent', 'leave', 'late', 'od'])
-      .order('date', { ascending: false });
-
-    dailyData?.forEach(record => {
-      records.push({
-        date: record.date,
-        status: record.status as 'absent' | 'leave' | 'late' | 'od',
-        type: 'daily'
-      });
-    });
-
-    // Fetch period attendance (absent, leave, late, od)
-    const { data: periodData } = await supabase
-      .from('period_attendance')
-      .select(`
-        date,
-        period,
-        status,
-        subjects (
-          name
-        )
-      `)
-      .eq('student_id', user.id)
-      .in('status', ['absent', 'leave', 'late', 'od'])
-      .order('date', { ascending: false });
-
-    periodData?.forEach((record: any) => {
-      records.push({
-        date: record.date,
-        period: record.period,
-        status: record.status as 'absent' | 'leave' | 'late' | 'od',
-        subject: record.subjects?.name || 'Unknown',
-        type: 'period'
-      });
-    });
-
-    // Sort by date descending
-    records.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-    setAbsentRecords(records);
+    if (!user?.id) return;
+    try {
+      const resp = await api.get('/attendance/records/', { params: { filter: recordFilter } });
+      setAbsentRecords(resp.data || []);
+    } catch (e) {
+      console.error('Error fetching absent records from API:', e);
+    }
   };
 
   const getPercentageColor = (percentage: number) => {

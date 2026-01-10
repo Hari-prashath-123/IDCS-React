@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { BookOpen, Home, CalendarDays, CheckCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 
 type Elective = {
@@ -315,36 +316,29 @@ export default function MyElectives() {
         
         alert(data.message || 'Elective selection locked successfully! You cannot change this selection anymore.');
       } else {
-        // For non-locking saves, use direct insert/update
-        // Check if already submitted for this parent
-        if (submittedSelections[parentId]) {
-          // Update existing selection
-          const { error } = await supabase
-            .from('student_electives')
-            .update({ elective_id: electiveId })
-            .eq('student_id', profile.id)
-            .eq('elective_id', submittedSelections[parentId]);
-          
-          if (error) throw error;
-        } else {
-          // Insert new selection (unlocked)
-          const { error } = await supabase
-            .from('student_electives')
-            .insert({
-              student_id: profile.id,
-              elective_id: electiveId,
-              is_locked: false
-            });
-          
-          if (error) throw error;
+        // For non-locking saves, send a request to the backend selection endpoint.
+        try {
+          const resp = await api.post('/electives/select/', {
+            student_id: profile.id,
+            elective_id: electiveId,
+          });
+
+          setSubmittedSelections(prev => ({
+            ...prev,
+            [parentId]: electiveId
+          }));
+
+          alert(resp.data?.message || 'Elective selection saved successfully!');
+        } catch (e: any) {
+          const status = e?.response?.status;
+          const serverMsg = e?.response?.data?.message || e?.response?.data?.detail || e?.message;
+          if (status === 400 || status === 409) {
+            // Show backend message (e.g., 'Seats full') directly to the user
+            alert(serverMsg || 'Seats full');
+          } else {
+            throw e;
+          }
         }
-        
-        setSubmittedSelections(prev => ({
-          ...prev,
-          [parentId]: electiveId
-        }));
-        
-        alert('Elective selection saved successfully!');
       }
       
       // Refresh electives to get updated seat counts
@@ -457,7 +451,8 @@ export default function MyElectives() {
                       {group.electives.map((elective) => {
                         const isFull = elective.seat_count !== null && elective.seats_filled >= elective.seat_count;
                         const isCurrentSelection = selectedId === elective.id;
-                        const canSelect = !isFull || isCurrentSelection;
+                        // Do not block selection client-side when seats appear full; rely on backend enforcement
+                        const canSelect = true;
                         
                         return (
                           <label
@@ -467,9 +462,7 @@ export default function MyElectives() {
                                 ? 'border-green-500 bg-green-50 cursor-not-allowed'
                                 : isLocked
                                 ? 'opacity-60 cursor-not-allowed'
-                                : canSelect
-                                ? 'cursor-pointer'
-                                : 'cursor-not-allowed opacity-60'
+                                : 'cursor-pointer'
                             } ${
                               !isLocked && isCurrentSelection
                                 ? 'border-blue-500 bg-blue-50'
@@ -484,7 +477,7 @@ export default function MyElectives() {
                               value={elective.id}
                               checked={isCurrentSelection}
                               onChange={() => handleSelectElective(parentId, elective.id)}
-                              disabled={isLocked || !canSelect}
+                              disabled={isLocked}
                               className="mt-1 h-5 w-5 text-blue-600 focus:ring-blue-500 disabled:opacity-50"
                             />
                             <div className="flex-1">

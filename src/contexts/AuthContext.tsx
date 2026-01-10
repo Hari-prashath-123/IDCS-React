@@ -4,19 +4,18 @@ import { supabase, Profile, withRetryBatch } from '../lib/supabase';
 // Expose supabase client to the browser console in development for debugging RPCs
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+  import authService from '../lib/authService';
+  import type { User } from '../lib/apiTypes';
   window.supabase = supabase;
 }
-import { User } from '@supabase/supabase-js';
-import { cache, getCacheKey, CACHE_TTL } from '../lib/cache';
-import { clearAllCache } from '../lib/cacheInvalidation';
-
-interface AuthContextType {
-  user: User | null;
+    user: User | null;
+    loading: boolean;
+    signIn: (identifier: string, password: string) => Promise<User | null>;
+    signOut: () => void;
+    refreshProfile: () => Promise<User | null | void>;
   profile: Profile | null;
   loading: boolean;
   signIn: (identifier: string, password: string) => Promise<Profile | null>;
-  signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -42,163 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.debug('AuthContext: cannot access localStorage', e);
         }
 
-        try {
-          const ssKeys: string[] = [];
-          for (let i = 0; i < sessionStorage.length; i++) {
-            const k = sessionStorage.key(i) || '';
-            ssKeys.push(k);
-          }
-          console.debug('AuthContext: sessionStorage keys', ssKeys);
-        } catch (e) {
-          console.debug('AuthContext: cannot access sessionStorage', e);
-        }
-      }
-    } catch (e) {
-      console.debug('AuthContext: storage inspection failed', e);
-    }
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      console.info('AuthContext: getSession returned', !!session);
-      try {
-        const { data: userData } = await supabase.auth.getUser();
-        console.info('AuthContext: auth.getUser returned', !!userData?.user);
-        console.info('AuthContext: logged-in user id', userData?.user?.id ?? null);
-      } catch (e) {
-        console.debug('AuthContext: auth.getUser failed', e);
-      }
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      } else {
-        // If Supabase did not return a session, try to recover from storage
-        // Check both localStorage and sessionStorage for any keys that contain 'supabase.auth'
-        // and attempt to set the session using common token shapes. This is defensive
-        // — some mobile browsers partition storage or change UA, producing a reload
-        // where `getSession()` may initially return null.
-        (async () => {
-          try {
-            if (typeof window === 'undefined') return;
-
-            const candidates: string[] = [];
-            try {
-              for (let i = 0; i < localStorage.length; i++) {
-                const k = localStorage.key(i) || '';
-                if (k.includes('supabase.auth')) candidates.push(k);
-              }
-            } catch (e) {
-              // localStorage access may throw in some browsers/privacy modes
-            }
-
-            try {
-              for (let i = 0; i < sessionStorage.length; i++) {
-                const k = sessionStorage.key(i) || '';
-                if (k.includes('supabase.auth')) candidates.push(k);
-              }
-            } catch (e) {
-              // sessionStorage may throw as well
-            }
-
-            let restored = null as any;
-            for (const key of candidates) {
-              try {
-                const raw = localStorage.getItem(key) ?? sessionStorage.getItem(key);
-                if (!raw) continue;
-                let parsed: any = null;
-                try {
-                  parsed = JSON.parse(raw);
-                } catch (e) {
-                  // Not JSON — skip
-                  continue;
-                }
-
-                // Try common shapes:
-                // 1) { currentSession: { access_token, refresh_token } }
-                // 2) { access_token, refresh_token }
-                // 3) nested older forms
-                const access = parsed?.currentSession?.access_token || parsed?.access_token || parsed?.currentSession?.accessToken || null;
-                const refresh = parsed?.currentSession?.refresh_token || parsed?.refresh_token || parsed?.currentSession?.refreshToken || null;
-                if (access && refresh) {
-                  // Do not log tokens. Only log presence for debugging.
-                  console.info('AuthContext: found stored Supabase auth tokens, attempting restore');
-                  const { error: setErr } = await supabase.auth.setSession({ access_token: access, refresh_token: refresh });
-                  if (setErr) {
-                    console.warn('AuthContext: restore attempt failed:', setErr?.message || setErr);
-                    continue;
-                  }
-                  const { data: { session: s } } = await supabase.auth.getSession();
-                  if (s?.user) {
-                    restored = s;
-                    setUser(s.user);
-                    await fetchProfile(s.user.id);
-                    break;
-                  }
-                }
-              } catch (e) {
-                console.warn('AuthContext: error while attempting to restore session from storage key', key, e);
                 continue;
-              }
-            }
-
-            if (!restored) {
-              // No usable token found
-              console.info('AuthContext: no stored Supabase session found in storage');
-            }
-          } finally {
-            setLoading(false);
-          }
-        })();
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.info('AuthContext: onAuthStateChange', { event, hasSession: !!session });
-      (async () => {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
-          setLoading(false);
-        }
-      })();
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-    const refreshProfile = async () => {
-      if (!user) return;
-      setLoading(true);
-      try {
-        await fetchProfile(user.id);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-  const fetchProfile = async (userId: string): Promise<Profile | null> => {
-    try {
-      // Check cache first
-      const cacheKey = getCacheKey('profile', userId);
-      const cachedProfile = cache.get<Profile>(cacheKey);
-      
-      if (cachedProfile) {
-        console.log('Loading profile from cache');
-        setProfile(cachedProfile);
-        return cachedProfile;
-      }
-
-      // Fetch profile and department admin status in parallel with retry logic
-      const [profileResult, deptAdminResult] = await withRetryBatch([
-        async () => await supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
-        async () => await supabase.from('department_admins').select('department').eq('staff_id', userId).maybeSingle()
-      ]);
-
-      if (profileResult.error) throw profileResult.error;
-      
-      const data = profileResult.data;
-      // Attach department admin info if exists
-      if (!deptAdminResult.error && deptAdminResult.data) {
-        (data as any).is_department_admin = true;
         (data as any).department_admin_for = deptAdminResult.data.department;
       }
       
@@ -229,33 +73,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .select('id, profiles!students_id_fkey(email)')
           .eq('reg_no', idInput)
           .maybeSingle();
-
-        if (sErr) throw sErr;
-
-        if (studentRow) {
-          const profileData = Array.isArray(studentRow.profiles)
-            ? studentRow.profiles[0]
-            : studentRow.profiles;
-
-          if (!profileData || !(profileData as any).email) {
-            throw new Error('No email associated with that register number');
-          }
-          emailToUse = (profileData as any).email;
-        } else {
-          // Second try: treat identifier as a staff_id and look up the staff table.
-          // Try multiple columns commonly used: staff_id or roll_number.
-          let staffRow: any = null;
-          try {
-            const orQuery = `staff_id.eq.${idInput}`;
-            console.info('signIn: staff lookup .or query', orQuery);
-            const { data: sRow, error: sErr } = await supabase
-              .from('staff')
-              .select('id, staff_id')
-              .or(orQuery)
-              .maybeSingle();
-            if (sErr) throw sErr;
-            staffRow = sRow;
-          } catch (e) {
+    const signOut = () => {
+      try {
+        setUser(null);
+        authService.logout();
+      } catch (e) {
+        console.error('Error in signOut:', e);
+        setUser(null);
+      }
+    };
             console.warn('staff lookup by or(...) failed, trying direct eq', e);
             const { data: sRow2, error: sErr2 } = await supabase
               .from('staff')

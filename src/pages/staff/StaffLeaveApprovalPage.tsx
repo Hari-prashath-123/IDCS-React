@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, CheckCircle, XCircle, Clock, ArrowLeft } from 'lucide-react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { supabase } from '../../lib/supabase';
+import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface LeaveApplication {
@@ -121,17 +122,12 @@ export default function StaffLeaveApprovalPage() {
 
       const approverRole = profile?.role === 'hod' ? 'hod' : 'principal';
 
-      const { error } = await supabase
-        .from('staff_leave_approvals')
-        .insert({
-          application_id: selectedApp.id,
-          approver_id: user.id,
-          approver_role: approverRole,
-          action: approvalAction,
-          remarks: approvalRemarks.trim() || null,
-        });
-
-      if (error) throw error;
+      // Notify backend to perform approval. Backend enforces permissions and
+      // business rules and persists approval records.
+      await api.post(`/leaves/${selectedApp.id}/approve/`, {
+        action: approvalAction,
+        remarks: approvalRemarks.trim() || null,
+      });
 
       // Refresh applications list
       await fetchPendingApplications();

@@ -19,19 +19,9 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const userProfile = await signIn(identifier, password);
-      
-      // Redirect PE HOD/AHOD to PE unique dashboard, others to normal dashboard
-      if (
-        userProfile &&
-        (userProfile.role === 'hod' || userProfile.role === 'ahod') &&
-        (String(userProfile.department || '').toLowerCase().includes('physical') || 
-         String(userProfile.department || '').toLowerCase() === 'pe')
-      ) {
-        navigate("/pe-dashboard", { replace: true });
-      } else {
-        navigate("/dashboard", { replace: true });
-      }
+      const user = await signIn(identifier, password);
+      if (!user) throw new Error('Login failed');
+      navigate('/', { replace: true });
     } catch (err: any) {
       const msg =
         err?.message || "Invalid email or password. Please try again.";
