@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import { BookOpen, Home, CalendarDays, CheckCircle } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
 import api from '../../lib/api';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -92,7 +91,7 @@ export default function MyElectives() {
           break;
         }
       }
-
+          // Determine student's group based on department
       console.log('Student department:', dept, 'Detected group:', group, 'Year:', studentData?.year);
       setStudentGroup(group);
 
@@ -268,79 +267,11 @@ export default function MyElectives() {
     // Don't allow changes if selection is locked
     if (lockedSelections[parentId]) {
       alert('This selection is locked and cannot be changed.');
-      return;
-    }
-    
-    setSelectedElectives(prev => ({
-      ...prev,
-      [parentId]: electiveId
-    }));
-  };
-
-  const handleSubmitSelection = async (parentId: string, isLocking: boolean = false) => {
-    if (!profile || !selectedElectives[parentId]) return;
-    
-    // Check if already locked
-    if (lockedSelections[parentId]) {
-      alert('This selection is already locked and cannot be changed.');
-      return;
-    }
-    
-    setSaving(true);
-    try {
-      const electiveId = selectedElectives[parentId];
-      
-      if (isLocking) {
-        // Use the RPC function with row-level locking
-        const { data, error } = await supabase
-          .rpc('lock_student_elective', {
-            p_student_id: profile.id,
-            p_elective_id: electiveId
-          });
-        
-        if (error) throw error;
-        
-        if (!data.success) {
-          throw new Error(data.error);
-        }
-        
-        setSubmittedSelections(prev => ({
-          ...prev,
-          [parentId]: electiveId
-        }));
-        
-        setLockedSelections(prev => ({
-          ...prev,
-          [parentId]: true
-        }));
-        
-        alert(data.message || 'Elective selection locked successfully! You cannot change this selection anymore.');
-      } else {
-        // For non-locking saves, send a request to the backend selection endpoint.
-        try {
-          const resp = await api.post('/electives/select/', {
-            student_id: profile.id,
-            elective_id: electiveId,
-          });
-
-          setSubmittedSelections(prev => ({
-            ...prev,
-            [parentId]: electiveId
-          }));
-
-          alert(resp.data?.message || 'Elective selection saved successfully!');
-        } catch (e: any) {
-          const status = e?.response?.status;
-          const serverMsg = e?.response?.data?.message || e?.response?.data?.detail || e?.message;
-          if (status === 400 || status === 409) {
-            // Show backend message (e.g., 'Seats full') directly to the user
-            alert(serverMsg || 'Seats full');
           } else {
             throw e;
           }
         }
       }
-      
       // Refresh electives to get updated seat counts
       if (studentYear === 1) {
         fetchElectives(null, profile.department, 1);
@@ -348,7 +279,6 @@ export default function MyElectives() {
         fetchElectives(studentGroup, profile.department, studentYear || undefined);
       }
     } catch (error: any) {
-      console.error('Error saving selection:', error);
       alert('Failed to save selection: ' + error.message);
     } finally {
       setSaving(false);
