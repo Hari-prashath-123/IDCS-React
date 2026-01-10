@@ -20,12 +20,10 @@ export default function Login() {
 
     try {
       const user = await signIn(identifier, password);
-      if (!user) throw new Error('Login failed');
-      navigate('/', { replace: true });
+      if (!user) throw new Error('Invalid credentials');
+      navigate('/dashboard', { replace: true });
     } catch (err: any) {
-      const msg =
-        err?.message || "Invalid email or password. Please try again.";
-      setError(msg);
+      setError('Invalid credentials');
       console.error(err);
     } finally {
       setLoading(false);

@@ -14,531 +14,132 @@ import DashboardLayout from "../../components/DashboardLayout";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../contexts/AuthContext";
 import { useInactivityLogout } from "../../hooks/useInactivityLogout";
+import { studentService, type DashboardData } from "../../services/studentService";
 
 export default function StudentDashboard() {
-  const { user, profile } = useAuth();
-  
-  // Auto-logout after 3 minutes of inactivity (students only)
-  const { showWarning, secondsRemaining, cancelLogout } = useInactivityLogout(3);
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const [pendingStats, setPendingStats] = useState({
-    od: 0,
-    leave: 0,
-    gatepass: 0,
-    bonafide: 0,
-  });
-  const [totalStats, setTotalStats] = useState({
-    od: 0,
-    leave: 0,
-    gatepass: 0,
-    bonafide: 0,
-  });
-  const [notifications, setNotifications] = useState<
-    Array<{
-      id: string;
-      type: string;
-      status: string;
-      date: string;
-      message: string;
-    }>
-  >([]);
-  const [loading, setLoading] = useState(true);
-  const [attendancePercentage, setAttendancePercentage] = useState<number>(0);
-  const [todayTimetable, setTodayTimetable] = useState<any[]>([]);
-  const [todayPeriodAttendance, setTodayPeriodAttendance] = useState<
-    Map<number, string>
-  >(new Map());
   
+  // Dashboard data from API (consolidated from multiple endpoints)
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  
+  // UI state
   const [showNotifications, setShowNotifications] = useState(false);
-  const [recentNotices, setRecentNotices] = useState<any[]>([]);
-  const [unreadNoticesCount, setUnreadNoticesCount] = useState(0);
   const [showPSBonafidePopup, setShowPSBonafidePopup] = useState(false);
   const [showClaimConfirmation, setShowClaimConfirmation] = useState(false);
+  const [unreadNoticesCount, setUnreadNoticesCount] = useState(0);
+
+  // Inactivity Logout
+  const { showWarning, secondsRemaining, cancelLogout } = useInactivityLogout();
 
   useEffect(() => {
     if (user) {
-      // Load critical data first (stats and notices)
-      Promise.all([
-        fetchPendingStats(),
-        fetchRecentNotices()
-      ]).then(() => {
-        // Load less critical data after
-        fetchNotifications();
-        fetchAttendancePercentage();
-        fetchTodayTimetable();
-      });
+      fetchDashboard();
     }
   }, [user]);
 
-  const fetchPendingStats = async () => {
+  // Update unread notices count and bonafide popup when dashboard data changes
+  useEffect(() => {
+    if (dashboardData?.recent_notices) {
+      const readNotices = JSON.parse(localStorage.getItem("readNotices") || "[]");
+      const unreadCount = dashboardData.recent_notices.filter(
+        (notice) => !readNotices.includes(notice.id)
+      ).length;
+      setUnreadNoticesCount(unreadCount);
+    }
+    
+    if (dashboardData?.has_unclaimed_ps_bonafide) {
+      setShowPSBonafidePopup(true);
+    }
+  }, [dashboardData]);
+
+  const fetchDashboard = async () => {
     try {
-      // Use count() instead of select("id") for better performance
-      const [
-        odPending,
-        leavePending,
-        gatepassPending,
-        bonafidePending,
-        odTotal,
-        leaveTotal,
-        gatepassTotal,
-        bonafideTotal,
-      ] = await Promise.all([
-        // Pending applications - use count for efficiency
-        supabase
-          .from("od_applications")
-          .select("*", { count: "exact", head: true })
-          .eq("student_id", user?.id)
-          .eq("status", "pending"),
-        supabase
-          .from("leave_applications")
-          .select("*", { count: "exact", head: true })
-          .eq("student_id", user?.id)
-          .eq("status", "pending"),
-        supabase
-          .from("gatepass_applications")
-          .select("*", { count: "exact", head: true })
-          .eq("student_id", user?.id)
-          .eq("status", "pending"),
-        supabase
-          .from("bonafide_applications")
-          .select("*", { count: "exact", head: true })
-          .eq("student_id", user?.id)
-          .eq("status", "pending"),
-        // Total applications - use count for efficiency
-        supabase
-          .from("od_applications")
-          .select("*", { count: "exact", head: true })
-          .eq("student_id", user?.id),
-        supabase
-          .from("leave_applications")
-          .select("*", { count: "exact", head: true })
-          .eq("student_id", user?.id),
-        supabase
-          .from("gatepass_applications")
-          .select("*", { count: "exact", head: true })
-          .eq("student_id", user?.id),
-        supabase
-          .from("bonafide_applications")
-          .select("*", { count: "exact", head: true })
-          .eq("student_id", user?.id),
-      ]);
-
-      const pendingStatsData = {
-        od: odPending.count || 0,
-        leave: leavePending.count || 0,
-        gatepass: gatepassPending.count || 0,
-        bonafide: bonafidePending.count || 0,
-      };
-
-      const totalStatsData = {
-        od: odTotal.count || 0,
-        leave: leaveTotal.count || 0,
-        gatepass: gatepassTotal.count || 0,
-        bonafide: bonafideTotal.count || 0,
-      };
-
-      setPendingStats(pendingStatsData);
-      setTotalStats(totalStatsData);
+      setLoading(true);
+      const data = await studentService.getDashboard();
+      setDashboardData(data);
     } catch (error) {
-      console.error("Error fetching stats:", error);
+      console.error("Error fetching dashboard:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchAttendancePercentage = async () => {
-    try {
-      if (!user?.id) return;
-
-      // Get today's date in YYYY-MM-DD format
-      const today = new Date();
-      const todayStr = today.toISOString().split("T")[0];
-
-      // Get all daily attendance
-      const { data: dailyData, error: dailyError } = await supabase
-        .from("daily_attendance")
-        .select("date, status")
-        .eq("student_id", user.id);
-
-      if (dailyError) throw dailyError;
-
-      // Get all period attendance
-      const { data: periodData, error: periodError } = await supabase
-        .from("period_attendance")
-        .select("date, period, status")
-        .eq("student_id", user.id);
-
-      if (periodError) throw periodError;
-
-      // Assume 7 periods per day
-      const PERIODS_PER_DAY = 7;
-
-      // Create a map to track attendance for each date and period
-      const attendanceMap = new Map<string, Map<number, string>>();
-
-      // First, populate from daily attendance (all periods for that day)
-      dailyData?.forEach((day) => {
-        const dateKey = day.date;
-        if (!attendanceMap.has(dateKey)) {
-          attendanceMap.set(dateKey, new Map());
-        }
-        const dayMap = attendanceMap.get(dateKey)!;
-
-        // Set all 7 periods to the daily status
-        for (let period = 1; period <= PERIODS_PER_DAY; period++) {
-          dayMap.set(period, day.status);
-        }
+  // Helper to convert period attendance array to Map for rendering
+  const getTodayPeriodAttendanceMap = (): Map<number, string> => {
+    const map = new Map<number, string>();
+    if (dashboardData?.today_period_attendance) {
+      dashboardData.today_period_attendance.forEach(({ period, status }) => {
+        map.set(period, status);
       });
-
-      // Then, override with specific period attendance (manual marking takes precedence)
-      periodData?.forEach((record) => {
-        const dateKey = record.date;
-        if (!attendanceMap.has(dateKey)) {
-          attendanceMap.set(dateKey, new Map());
-        }
-        const dayMap = attendanceMap.get(dateKey)!;
-
-        // Override this specific period
-        dayMap.set(record.period, record.status);
-      });
-
-      // Calculate totals
-      let totalPeriods = 0;
-      let presentCount = 0;
-      let lateCount = 0;
-      let odCount = 0;
-
-      attendanceMap.forEach((dayMap) => {
-        dayMap.forEach((status) => {
-          totalPeriods++;
-          switch (status) {
-            case "present":
-              presentCount++;
-              break;
-            case "late":
-              lateCount++;
-              break;
-            case "od":
-              odCount++;
-              break;
-          }
-        });
-      });
-
-      // Calculate percentage (present + od + late considered as attended)
-      const attended = presentCount + odCount + lateCount;
-      const percentage =
-        totalPeriods > 0 ? Math.round((attended / totalPeriods) * 100) : 0;
-
-      setAttendancePercentage(percentage);
-
-      // Extract today's period attendance
-      const todayAttendance = attendanceMap.get(todayStr);
-      if (todayAttendance) {
-        setTodayPeriodAttendance(todayAttendance);
-      } else {
-        setTodayPeriodAttendance(new Map());
-      }
-    } catch (error) {
-      console.error("Error fetching attendance:", error);
-      setAttendancePercentage(0);
-      setTodayPeriodAttendance(new Map());
     }
+    return map;
   };
 
-  const fetchNotifications = async () => {
-    try {
-      // Query all four application tables with their approvals
-      const [odApps, leaveApps, gatepassApps, bonafideApps] = await Promise.all(
-        [
-          supabase
-            .from("od_applications")
-            .select(
-              "id, status, updated_at, od_approvals(id, action, remarks, approver_role, created_at)"
-            )
-            .eq("student_id", user?.id)
-            .order("updated_at", { ascending: false })
-            .limit(2),
-          supabase
-            .from("leave_applications")
-            .select(
-              "id, status, updated_at, leave_approvals(id, action, remarks, approver_role, created_at)"
-            )
-            .eq("student_id", user?.id)
-            .order("updated_at", { ascending: false })
-            .limit(2),
-          supabase
-            .from("gatepass_applications")
-            .select(
-              "id, status, updated_at, gatepass_approvals(id, action, remarks, approver_role, created_at)"
-            )
-            .eq("student_id", user?.id)
-            .order("updated_at", { ascending: false })
-            .limit(2),
-          supabase
-            .from("bonafide_applications")
-            .select(
-              "id, status, updated_at, claimed_at, bonafide_approvals(id, action, remarks, approver_role, created_at)"
-            )
-            .eq("student_id", user?.id)
-            .order("updated_at", { ascending: false })
-            .limit(2),
-        ]
-      );
+  // Extract data for rendering (backward-compatible with existing JSX)
+  const pendingStats = dashboardData?.pending_stats || { od: 0, leave: 0, bonafide: 0, gatepass: 0 };
+  const totalStats = dashboardData?.total_stats || { od: 0, leave: 0, bonafide: 0, gatepass: 0 };
+  const attendancePercentage = dashboardData?.attendance_percentage || 0;
+  const todayTimetable = dashboardData?.today_timetable || [];
+  const todayPeriodAttendance = getTodayPeriodAttendanceMap();
+  const notifications = dashboardData?.notifications || [];
+  const recentNotices = dashboardData?.recent_notices || [];
 
-      // Check for PS-approved bonafide applications that are not yet claimed (server-side)
-      const bonafideData = bonafideApps.data || [];
-      let hasUnclaimedPSApprovedBonafide = false;
-
-      for (const app of bonafideData) {
-        const approvals = app.bonafide_approvals || [];
-        const psApproval = approvals.find((approval: any) =>
-          approval.approver_role === 'ps' && approval.action === 'approved'
-        );
-
-        // If PS approved and application has no claimed_at or PS approval is newer than claimed_at
-        if (psApproval) {
-          const claimedAt = app.claimed_at ? new Date(app.claimed_at).getTime() : 0;
-          const psTime = new Date(psApproval.created_at).getTime();
-          if (!app.claimed_at || psTime > claimedAt) {
-            hasUnclaimedPSApprovedBonafide = true;
-            break;
-          }
-        }
-      }
-
-      if (hasUnclaimedPSApprovedBonafide) setShowPSBonafidePopup(true);
-
-      // Merge and sort all applications
-      const allApps: any[] = [
-        ...(odApps.data || []).map((app: any) => ({
-          ...app,
-          type: "od",
-          approvals: app.od_approvals,
-        })),
-        ...(leaveApps.data || []).map((app: any) => ({
-          ...app,
-          type: "leave",
-          approvals: app.leave_approvals,
-        })),
-        ...(gatepassApps.data || []).map((app: any) => ({
-          ...app,
-          type: "gatepass",
-          approvals: app.gatepass_approvals,
-        })),
-        ...(bonafideApps.data || []).map((app: any) => ({
-          ...app,
-          type: "bonafide",
-          approvals: app.bonafide_approvals,
-        })),
-      ];
-
-      // Sort by updated_at and take top 5
-      allApps.sort(
-        (a, b) =>
-          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-      );
-      const topApps = allApps.slice(0, 10);
-
-      const notifs = topApps.map((app) => {
-        const date = new Date(app.updated_at).toLocaleDateString();
-        let message = `Your ${app.type.toUpperCase()} application is ${
-          app.status
-        } - ${date}`;
-
-        // If there are approvals, show the latest approval action and remarks
-        const approvals = app.approvals || [];
-        if (approvals.length > 0) {
-          const latest = approvals.sort(
-            (a: any, b: any) =>
-              new Date(b.created_at).getTime() -
-              new Date(a.created_at).getTime()
-          )[0];
-          if (latest) {
-            message += ` (${latest.action.toUpperCase()} by ${
-              latest.approver_role
-            }${latest.remarks ? `: ${latest.remarks}` : ""})`;
-          }
-        }
-
-        return {
-          id: app.id,
-          type: app.type.toUpperCase(),
-          status: app.status,
-          date: date,
-          message: message,
-        };
-      });
-
-      setNotifications(notifs);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-    }
-  };
-
-  const fetchTodayTimetable = async () => {
-    try {
-      if (!user?.id || !profile?.department) return;
-
-      // Fetch student year and section
-      const { data: studentData, error: studentError } = await supabase
-        .from("students")
-        .select("year, section")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (studentError) throw studentError;
-      if (!studentData || !studentData.year || !studentData.section) return;
-
-      const computeCurrentSemester = () => {
-        const m = new Date().getMonth();
-        return m < 6 ? 1 : 2;
-      };
-      const semester = computeCurrentSemester();
-
-      // Get today's day of week (1=Monday, 5=Friday)
-      const today = new Date().getDay();
-      const dayOfWeek = today === 0 ? 7 : today; // Convert Sunday (0) to 7, keep rest as is
-
-      // Fetch today's timetable (same logic as MySubjects page)
-      const { data: timetableData, error: timetableError } = await supabase
-        .from("timetables")
-        .select("day_of_week, period, subject_id")
-        .eq("department", profile.department)
-        .eq("year", studentData.year)
-        .eq("section", studentData.section)
-        .eq("day_of_week", dayOfWeek)
-        .order("period", { ascending: true });
-
-      if (timetableError) throw timetableError;
-
-      // Fetch subject details for the timetable
-      if (timetableData && timetableData.length > 0) {
-        const subjectIds = timetableData
-          .map((t) => t.subject_id)
-          .filter((id) => id !== null);
-
-        if (subjectIds.length > 0) {
-          const { data: subjectsData } = await supabase
-            .from("subjects")
-            .select("id, name, subject_code")
-            .in("id", subjectIds);
-
-          const subjectMap = new Map();
-          subjectsData?.forEach((s) => subjectMap.set(s.id, s));
-
-          const enrichedTimetable = timetableData.map((t) => ({
-            ...t,
-            subject: t.subject_id ? subjectMap.get(t.subject_id) : null,
-          }));
-
-          setTodayTimetable(enrichedTimetable);
-        } else {
-          setTodayTimetable(timetableData);
-        }
-      } else {
-        setTodayTimetable([]);
-      }
-    } catch (error) {
-      console.error("Error fetching timetable:", error);
-    }
-  };
 
   const handleClaimBonafide = () => {
     setShowClaimConfirmation(true);
   };
 
-  const handleClaimConfirmation = (confirmed: boolean) => {
+  const handleClaimConfirmation = async (confirmed: boolean) => {
     if (confirmed && user?.id) {
-      (async () => {
-        try {
-          // Fetch bonafide applications for this student that have a PS-approved approval
-          const { data: appsWithApprovals, error: fetchErr } = await supabase
+      try {
+        // Call backend API to mark bonafide as claimed
+        const { data: appsWithApprovals, error: fetchErr } = await supabase
+          .from('bonafide_applications')
+          .select('id, claimed_at, bonafide_approvals(created_at, approver_role, action)')
+          .eq('student_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(500);
+        
+        if (fetchErr) throw fetchErr;
+
+        const toUpdate: string[] = [];
+        (appsWithApprovals || []).forEach((a: any) => {
+          const approvals = a.bonafide_approvals || [];
+          const psApproval = approvals.find((ap: any) => ap.approver_role === 'ps' && ap.action === 'approved');
+          if (psApproval) {
+            const claimedAt = a.claimed_at ? new Date(a.claimed_at).getTime() : 0;
+            const psTime = new Date(psApproval.created_at).getTime();
+            if (!a.claimed_at || psTime > claimedAt) {
+              toUpdate.push(a.id);
+            }
+          }
+        });
+
+        if (toUpdate.length > 0) {
+          const { error: updErr } = await supabase
             .from('bonafide_applications')
-            .select('id, claimed_at, bonafide_approvals(created_at, approver_role, action)')
-            .eq('student_id', user.id)
-            .order('created_at', { ascending: false })
-            .limit(500);
-          if (fetchErr) throw fetchErr;
-
-          const toUpdate: string[] = [];
-          (appsWithApprovals || []).forEach((a: any) => {
-            const approvals = a.bonafide_approvals || [];
-            const psApproval = approvals.find((ap: any) => ap.approver_role === 'ps' && ap.action === 'approved');
-            if (psApproval) {
-              const claimedAt = a.claimed_at ? new Date(a.claimed_at).getTime() : 0;
-              const psTime = new Date(psApproval.created_at).getTime();
-              if (!a.claimed_at || psTime > claimedAt) {
-                toUpdate.push(a.id);
-              }
-            }
-          });
-
-          if (toUpdate.length > 0) {
-            const { error: updErr } = await supabase
-              .from('bonafide_applications')
-              .update({ claimed_at: new Date().toISOString() })
-              .in('id', toUpdate);
-            if (updErr) {
-              console.error('Failed to update claimed_at', updErr);
-              alert('Failed to record claim. Please try again.');
-            } else {
-              // Refresh notifications and hide popup
-              await fetchNotifications();
-              setShowPSBonafidePopup(false);
-            }
+            .update({ claimed_at: new Date().toISOString() })
+            .in('id', toUpdate);
+          
+          if (updErr) {
+            console.error('Failed to update claimed_at', updErr);
+            alert('Failed to record claim. Please try again.');
           } else {
-            // Nothing to update, just hide popup
+            // Refresh dashboard to get updated data
+            await fetchDashboard();
             setShowPSBonafidePopup(false);
           }
-        } catch (err) {
-          console.error('Error claiming bonafide approvals', err);
-          alert('Failed to record claim. Please try again.');
+        } else {
+          setShowPSBonafidePopup(false);
         }
-      })();
+      } catch (err) {
+        console.error('Error claiming bonafide approvals', err);
+        alert('Failed to record claim. Please try again.');
+      }
     }
     setShowClaimConfirmation(false);
-  };
-
-  const fetchRecentNotices = async () => {
-    try {
-      // Fetch content from notice_content table (same as home page)
-      const { data: contentData, error: contentError } = await supabase
-        .from('notice_content')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(3);
-
-      if (contentError) throw contentError;
-
-      // Get public URLs for images
-      const noticesWithUrls = contentData.map(content => {
-        const { data: publicUrl } = supabase.storage
-          .from('notice')
-          .getPublicUrl(content.image_name);
-
-        return {
-          ...content,
-          publicUrl: publicUrl.publicUrl,
-          content: content,
-          id: content.id,
-          title: content.title,
-          description: content.description,
-          created_at: content.created_at
-        };
-      });
-
-      setRecentNotices(noticesWithUrls);
-
-      // Count unread notices (using the same logic but for notice_content)
-      const readNotices = JSON.parse(localStorage.getItem("readNotices") || "[]");
-      const unreadCount = noticesWithUrls.filter(
-        (notice) => !readNotices.includes(notice.id)
-      ).length;
-      setUnreadNoticesCount(unreadCount);
-    } catch (error) {
-      console.error("Error fetching notices:", error);
-    }
   };
 
   const sidebarItems = [

@@ -1,3 +1,10 @@
+/*
+ * DEPRECATED: This file has been replaced by Django API implementation.
+ * All functionality now handled by src/lib/api.ts and backend endpoints.
+ * Kept for reference only - can be deleted once confirmed not needed.
+ */
+
+/*
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, CheckCircle, XCircle, Clock, ArrowLeft } from 'lucide-react';
@@ -452,4 +459,9 @@ export default function StaffLeaveApprovalPage() {
       </div>
     </DashboardLayout>
   );
+}
+*/
+
+export default function StaffLeaveApprovalPage() {
+  return null;
 }

@@ -1,49 +1,36 @@
 import api from './api';
-import type { AuthResponse, User } from './apiTypes';
 
-const ACCESS_KEY = 'access_token';
-const REFRESH_KEY = 'refresh_token';
+export interface User {
+  id: number;
+  email: string;
+  username: string;
+  role: 'student' | 'staff' | 'hod' | 'principal';
+}
 
-const authService = {
-  async login(credentials: { username: string; password: string }): Promise<AuthResponse> {
-    const resp = await api.post('/token/', credentials);
-    const data: AuthResponse = resp.data;
-    if (data.access) localStorage.setItem(ACCESS_KEY, data.access);
-    if (data.refresh) localStorage.setItem(REFRESH_KEY, data.refresh);
-    if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
-    return data;
+export const authService = {
+  async login(credentials: any) {
+    // Hits Django's /api/token/ endpoint
+    const response = await api.post('/token/', credentials);
+    const { access, refresh } = response.data;
+    
+    localStorage.setItem('accessToken', access);
+    localStorage.setItem('refreshToken', refresh);
+    
+    return this.getProfile();
   },
 
-  async getProfile(): Promise<User> {
-    const resp = await api.get('/users/me/');
-    const user: User = resp.data;
-    try {
-      localStorage.setItem('user', JSON.stringify(user));
-    } catch {}
+  async getProfile() {
+    // Hits Django's /api/users/me/ endpoint
+    const response = await api.get('/users/me/');
+    const user = response.data;
+    localStorage.setItem('user', JSON.stringify(user));
     return user;
   },
 
-  logout(redirectTo = '/login') {
-    try {
-      localStorage.removeItem(ACCESS_KEY);
-      localStorage.removeItem(REFRESH_KEY);
-      localStorage.removeItem('user');
-    } catch {}
-    if (typeof window !== 'undefined') {
-      window.location.href = redirectTo;
-    }
-  },
-
-  async refreshToken(): Promise<string> {
-    const refresh = localStorage.getItem(REFRESH_KEY);
-    if (!refresh) throw new Error('No refresh token available');
-    const resp = await api.post('/token/refresh/', { refresh });
-    const data = resp.data as { access?: string };
-    const newAccess = data.access;
-    if (!newAccess) throw new Error('Invalid refresh response');
-    localStorage.setItem(ACCESS_KEY, newAccess);
-    return newAccess;
-  },
+  logout() {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  }
 };
-
-export default authService;
